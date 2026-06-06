@@ -2,76 +2,61 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HUMANEED // Raum für Klarheit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HUMANEED // Diagnostik</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
     <style>
+        .loading-dots:after { content: '.'; animation: dots 1.5s steps(5, end) infinite; }
+        @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60% { content: '...'; } 100% { content: ''; } }
         body.lockdown { overflow: hidden; }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%;
-            background: #d97706; cursor: pointer; margin-top: -8px;
-            box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);
-        }
+        input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #d97706; cursor: pointer; box-shadow: 0 0 10px rgba(217, 119, 6, 0.3); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #44403c; border-radius: 2px; }
     </style>
 </head>
-<body class="bg-stone-900 text-stone-300 font-sans min-h-screen flex flex-col">
+<body class="bg-stone-900 text-stone-300 font-sans min-h-screen">
 
     <div id="lockdownOverlay" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-1000 px-8 text-center backdrop-blur-sm">
         <div id="timerDisplay" class="text-7xl font-light text-stone-500 mb-12">20:00</div>
         <div id="aphorismDisplay" class="max-w-md text-stone-400 text-xl italic mb-8"></div>
     </div>
 
-    <main id="dashboard" class="flex-1 w-full max-w-2xl mx-auto px-6 pt-12 pb-12 flex flex-col transition-opacity duration-700">
+    <main id="dashboard" class="max-w-2xl mx-auto px-6 py-12 transition-opacity duration-700">
         <header class="mb-12 border-b border-stone-800 pb-6">
             <h1 class="text-lg font-medium text-stone-200">Humaneed</h1>
             <p class="text-xs text-stone-500">Raum für erlebte Selbstorganisation</p>
         </header>
 
-        <section class="flex-1 space-y-8">
-            <div>
-                <label class="block text-sm font-medium text-stone-300 mb-2">Fundament <span class="text-stone-500 font-light">Körper & Schlaf</span></label>
-                <input type="range" id="sliderBio" min="0" max="100" value="50" class="w-full">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-stone-300 mb-2">Nervensystem <span class="text-stone-500 font-light">Stresstoleranz</span></label>
-                <input type="range" id="sliderVagal" min="0" max="100" value="50" class="w-full">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-stone-300 mb-2">Geist <span class="text-stone-500 font-light">Fokus & Klarheit</span></label>
-                <input type="range" id="sliderCog" min="0" max="100" value="50" class="w-full">
-            </div>
-            
-            <textarea id="journalInput" rows="3" class="w-full bg-stone-800/50 text-stone-300 border border-stone-700 rounded-lg p-4 text-sm focus:border-accent outline-none" placeholder="Gedanken festhalten. Autopiloten unterbrechen..."></textarea>
-            
-            <button id="btnIntervention" class="w-full bg-stone-800 py-5 rounded-xl border border-stone-700 hover:border-accent transition-all">
-                <span id="btnText">Zustand auswerten</span>
-            </button>
+        <section class="space-y-8">
+            <div><label class="block text-sm mb-2">Körper & Schlaf</label><input type="range" id="sliderBio" value="50"></div>
+            <div><label class="block text-sm mb-2">Stresstoleranz</label><input type="range" id="sliderVagal" value="50"></div>
+            <div><label class="block text-sm mb-2">Fokus & Klarheit</label><input type="range" id="sliderCog" value="50"></div>
+            <textarea id="journalInput" rows="3" class="w-full bg-stone-800/50 p-4 rounded-lg border border-stone-700 outline-none focus:border-accent text-sm" placeholder="Gedanken festhalten..."></textarea>
+            <button id="btnIntervention" class="w-full bg-stone-800 py-4 rounded-xl border border-stone-700 hover:border-accent transition-all">Zustand auswerten</button>
         </section>
 
         <section id="outputSection" class="mt-12 hidden opacity-0 transition-opacity duration-700">
-            <div class="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden mb-6">
+            <div class="w-full h-1.5 bg-stone-800 rounded-full mb-6 overflow-hidden">
                 <div id="coherenceBar" class="h-full bg-accent w-0 transition-all duration-1000"></div>
             </div>
             <div id="terminalTyping" class="bg-stone-800/30 p-6 rounded-xl border border-stone-800 font-mono text-sm text-stone-400"></div>
-            <button id="btnReset" class="mt-8 w-full py-4 border border-stone-700 rounded-xl text-stone-400 hover:text-stone-200">Physischen Stop einleiten</button>
+            <button id="btnReset" class="mt-8 w-full py-4 border border-stone-700 rounded-xl hover:text-white">Physischen Stop einleiten</button>
         </section>
     </main>
 
     <script>
-        const aphorisms = ["Stärke ist die Fähigkeit, unter Druck bewusst zu bleiben.", "Stille beseitigt Ablenkung.", "Bedeutung findet sich in der Aufmerksamkeit.", "Wenn du siehst, was in dir passiert, verändert sich das Verhalten."];
+        const btn = document.getElementById('btnIntervention');
         
-        // Backend-Anbindung
-        document.getElementById('btnIntervention').addEventListener('click', async () => {
-            const btn = document.getElementById('btnIntervention');
+        btn.addEventListener('click', async () => {
             const output = document.getElementById('outputSection');
             const terminal = document.getElementById('terminalTyping');
             
+            // UI State
+            btn.disabled = true;
+            btn.textContent = "Analysiere...";
             output.classList.remove('hidden');
             setTimeout(() => output.classList.remove('opacity-0'), 50);
-            terminal.innerHTML = "Analysiere Systemarchitektur...";
-
+            
             try {
                 const res = await fetch('/api/diagnose', {
                     method: 'POST',
@@ -83,16 +68,25 @@
                         text: document.getElementById('journalInput').value
                     })
                 });
+                
+                if (!res.ok) throw new Error();
                 const data = await res.json();
+                
                 document.getElementById('coherenceBar').style.width = data.kohärenz + '%';
-                terminal.innerHTML = `<div>${data.diagnose}</div><div class="mt-4 text-accent font-bold">${data.titel}</div><div>${data.aktion}</div>`;
+                terminal.innerHTML = `<div class="text-stone-200 mb-4">${data.diagnose}</div>
+                                      <div class="text-accent font-bold uppercase tracking-widest">${data.titel}</div>
+                                      <div class="mt-2">${data.aktion}</div>`;
             } catch (e) {
-                terminal.innerHTML = "Verbindung zum Server fehlgeschlagen.";
+                terminal.innerHTML = "System ist offline. Bitte Verbindung zum Backend prüfen.";
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Zustand auswerten";
             }
         });
 
-        // Lockdown Logik
+        // Lockdown Logik bleibt stabil
         document.getElementById('btnReset').addEventListener('click', () => {
+            const aphorisms = ["Stärke ist die Fähigkeit, unter Druck bewusst zu bleiben.", "Stille beseitigt Ablenkung.", "Bedeutung findet sich in der Aufmerksamkeit."];
             document.getElementById('aphorismDisplay').textContent = aphorisms[Math.floor(Math.random() * aphorisms.length)];
             document.body.classList.add('lockdown');
             document.getElementById('lockdownOverlay').classList.remove('hidden');
@@ -107,287 +101,6 @@
                 if(timeLeft <= 0) { clearInterval(timer); location.reload(); }
             }, 1000);
         });
-    </script>
-</body>
-</html>        ::-webkit-scrollbar-thumb { background: #44403c; border-radius: 4px; }
-        
-        input[type=range] {
-            -webkit-appearance: none;
-            background: transparent;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            background: #d97706;
-            cursor: pointer;
-            margin-top: -8px;
-            box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);
-            transition: transform 0.1s;
-        }
-        input[type=range]::-webkit-slider-thumb:active {
-            transform: scale(1.1);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: #44403c;
-            border-radius: 2px;
-        }
-        input[type=range]:focus { outline: none; }
-    </style>
-</head>
-<body class="bg-stone-900 text-stone-300 font-sans antialiased selection:bg-accent selection:text-stone-900 min-h-screen flex flex-col relative selection:bg-opacity-30">
-
-    <div id="lockdownOverlay" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-1000 px-8 text-center backdrop-blur-sm">
-        <div id="timerDisplay" class="text-6xl md:text-8xl font-light text-stone-500 tracking-tight mb-12">20:00</div>
-        <div id="aphorismDisplay" class="max-w-md text-stone-400 font-light text-xl leading-relaxed mb-8 italic"></div>
-        <div class="text-stone-500 tracking-widest text-xs uppercase font-medium">Reizreduzierung. Atme ein.</div>
-    </div>
-
-    <main id="dashboard" class="flex-1 w-full max-w-2xl mx-auto px-6 pt-12 md:pt-16 pb-12 flex flex-col transition-opacity duration-700">
-        
-        <header class="mb-12 border-b border-stone-800 pb-6 flex justify-between items-end">
-            <div>
-                <h1 class="text-lg font-medium text-stone-200 tracking-wide mb-1">Humaneed</h1>
-                <p class="text-xs text-stone-500 font-light">Raum für erlebte Selbstorganisation</p>
-            </div>
-            <div class="text-xs text-stone-500" id="sysTime">00:00</div>
-        </header>
-
-        <section class="flex-1 space-y-6">
-            
-            <div class="bg-stone-800/50 p-6 rounded-xl border border-stone-800/80">
-                <div class="flex justify-between items-end mb-4">
-                    <label class="text-sm font-medium text-stone-300">Fundament <span class="text-stone-500 font-light ml-1">Körper & Schlaf</span></label>
-                    <span id="valBio" class="text-sm text-accent font-medium">50%</span>
-                </div>
-                <input type="range" id="sliderBio" min="0" max="100" value="50" class="w-full">
-            </div>
-
-            <div class="bg-stone-800/50 p-6 rounded-xl border border-stone-800/80">
-                <div class="flex justify-between items-end mb-4">
-                    <label class="text-sm font-medium text-stone-300">Nervensystem <span class="text-stone-500 font-light ml-1">Stresstoleranz</span></label>
-                    <span id="valVagal" class="text-sm text-accent font-medium">50%</span>
-                </div>
-                <input type="range" id="sliderVagal" min="0" max="100" value="50" class="w-full">
-            </div>
-
-            <div class="bg-stone-800/50 p-6 rounded-xl border border-stone-800/80">
-                <div class="flex justify-between items-end mb-4">
-                    <label class="text-sm font-medium text-stone-300">Geist <span class="text-stone-500 font-light ml-1">Fokus & Klarheit</span></label>
-                    <span id="valCog" class="text-sm text-accent font-medium">50%</span>
-                </div>
-                <input type="range" id="sliderCog" min="0" max="100" value="50" class="w-full">
-            </div>
-
-            <div class="bg-stone-800/30 p-6 rounded-xl border border-stone-800/50 mt-4">
-                <label for="journalInput" class="block text-sm font-medium text-stone-300 mb-3">Micro-Journaling <span class="text-stone-500 font-light ml-1">Was blockiert das System gerade? (Optional)</span></label>
-                <textarea 
-                    id="journalInput" 
-                    rows="3" 
-                    class="w-full bg-stone-900/50 text-stone-300 border border-stone-700/50 rounded-lg p-4 font-light text-sm resize-none transition-colors duration-300 focus:border-accent/50 focus:bg-stone-900 focus:outline-none placeholder-stone-600"
-                    placeholder="Gedanken festhalten. Den Autopiloten unterbrechen..."></textarea>
-            </div>
-
-            <button 
-                id="btnIntervention" 
-                class="mt-6 w-full bg-stone-800 hover:bg-stone-700 text-stone-200 text-sm font-medium tracking-wide py-5 rounded-xl border border-stone-700 hover:border-accent transition-all duration-300 flex justify-center items-center shadow-lg shadow-black/20">
-                <span id="btnText">Zustand auswerten</span>
-                <span class="text-accent opacity-0 absolute transition-opacity duration-300" id="btnIndicator">...</span>
-            </button>
-        </section>
-
-        <section id="outputSection" class="mt-12 hidden opacity-0 transition-opacity duration-700">
-            <div class="pt-6">
-                
-                <div class="mb-6 px-2">
-                    <div class="flex justify-between items-end mb-2">
-                        <span class="text-xs uppercase tracking-wider text-stone-500 font-medium">Systemkohärenz</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden">
-                        <div id="coherenceBar" class="h-full bg-accent w-0 transition-all duration-1000 rounded-full"></div>
-                    </div>
-                </div>
-
-                <div class="bg-stone-800/30 border border-stone-800/80 p-6 rounded-xl font-mono text-sm leading-relaxed text-stone-300 shadow-inner">
-                    <div id="terminalTyping"></div>
-                </div>
-
-                <button 
-                    id="btnReset" 
-                    class="mt-8 w-full bg-transparent text-stone-400 hover:text-stone-200 text-sm font-medium tracking-wide py-4 border border-stone-700 hover:border-stone-500 rounded-xl transition-colors duration-300">
-                    Physischen Stop einleiten
-                </button>
-            </div>
-        </section>
-    </main>
-
-    <script>
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('sysTime').textContent = now.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
-        }, 1000);
-
-        const aphorisms = [
-            "Stärke ist die Fähigkeit, unter Druck bewusst zu bleiben.",
-            "Stille beseitigt Ablenkung. In der Stille werden ungelöste Gedanken sichtbar.",
-            "Bedeutung findet sich nicht in Ereignissen, sondern in deiner Aufmerksamkeit.",
-            "Wenn du wirklich siehst, was in dir passiert, verändert sich dein Verhalten automatisch."
-        ];
-
-        const sliders = { bio: document.getElementById('sliderBio'), vagal: document.getElementById('sliderVagal'), cog: document.getElementById('sliderCog') };
-        const vals = { bio: document.getElementById('valBio'), vagal: document.getElementById('valVagal'), cog: document.getElementById('valCog') };
-        const journalInput = document.getElementById('journalInput');
-
-        Object.keys(sliders).forEach(key => {
-            sliders[key].addEventListener('input', (e) => { vals[key].textContent = e.target.value + '%'; });
-        });
-
-        const btnIntervention = document.getElementById('btnIntervention');
-        const btnText = document.getElementById('btnText');
-        const outputSection = document.getElementById('outputSection');
-        const terminalTyping = document.getElementById('terminalTyping');
-        const coherenceBar = document.getElementById('coherenceBar');
-        let isTyping = false;
-
-        function calculateSystem() {
-            const b = parseInt(sliders.bio.value);
-            const v = parseInt(sliders.vagal.value);
-            const c = parseInt(sliders.cog.value);
-            const text = journalInput.value.toLowerCase();
-
-            let coherence = Math.round((b * 0.5) + (v * 0.3) + (c * 0.2));
-            let diag = {};
-
-            // NLP Logik basierend auf der philosophischen Architektur
-            if (text.includes('handy') || text.includes('ablenkung') || text.includes('scrollen')) {
-                diag = {
-                    kohärenz: coherence,
-                    diagnose: "Default Mode Network (DMN) überstimuliert. Der Autopilot hat die Entscheidungsfindung übernommen. Die Lücke zwischen Reiz und Reaktion ist geschlossen.",
-                    titel: "Kognitive Integrität (Setup 08 & 04)",
-                    aktion: "Graustufen-Modus aktivieren. Dies bricht den Dopamin-Loop. Schließe alle Tabs bis auf einen. Konfrontiere das System mit Stille."
-                };
-            } else if (text.includes('entscheidung') || text.includes('druck') || text.includes('stress') || text.includes('vergleich')) {
-                diag = {
-                    kohärenz: coherence,
-                    diagnose: "Sympathikus-Dominanz. Das innere Identitätsgefühl ist instabil, das System sucht externen Halt. Epigenetische Stressreaktion aktiv.",
-                    titel: "Der physische Anker (Setup 12)",
-                    aktion: "Das 'Free Won't' nutzen. Stoppe die laufende Handlung. Eiskaltes Wasser über die Handgelenke (Vagus-Nerv Stimulation). Keine weiteren Entscheidungen heute."
-                };
-            } else if (text.includes('müde') || text.includes('schlaf') || text.includes('abend')) {
-                diag = {
-                    kohärenz: coherence,
-                    diagnose: "Circadiane Desynchronisation. Die biologische Kapazität (BDNF) sinkt. Das glymphatische System benötigt Vorbereitung zur Reinigung.",
-                    titel: "Low-Light-Abend (Setup 09)",
-                    aktion: "Lichtquellen radikal dimmen. Melatonin-Synthese ermöglichen. Das System muss herunterfahren, um die Struktur zu wahren."
-                };
-            } else if (b < 30 || coherence < 40) {
-                diag = {
-                    kohärenz: coherence,
-                    diagnose: "Dein physisches Fundament ist erschöpft. Kausale Exklusion greift: Der Körper limitiert den Geist.",
-                    titel: "Der physiologische Reset (Setup 07)",
-                    aktion: "Atme zweimal tief aus. Nimm dir 20 Minuten völlige Ruhe, um den Sympathikus zu deaktivieren."
-                };
-            } else if (c < 40) {
-                diag = {
-                    kohärenz: coherence,
-                    diagnose: "Dein Geist ist überstimuliert. Kognitive Kapazität am Limit.",
-                    titel: "Der weite Blick (Setup 11)",
-                    aktion: "Richte deinen Blick für 2 Minuten entspannt auf einen weit entfernten Punkt, um die Amygdala zu beruhigen."
-                };
-            } else {
-                diag = {
-                    kohärenz: coherence,
-                    diagnose: "Erlebte Selbstorganisation ist stabil. Das Ich-Narrativ trägt.",
-                    titel: "Der klare Cut (Setup 15)",
-                    aktion: "Räume deinen Schreibtisch physisch auf. Behalte diese Ordnung bei. Das physische Ritual schützt deinen mentalen Raum."
-                };
-            }
-            return diag;
-        }
-
-        async function typeTerminal(diag) {
-            isTyping = true;
-            coherenceBar.style.width = '0%';
-            terminalTyping.innerHTML = '<span class="text-stone-500 animate-pulse">...</span>';
-            
-            await new Promise(r => setTimeout(r, 600));
-            coherenceBar.style.width = diag.kohärenz + '%';
-            
-            const lines = [
-                `<div class="mb-4 text-stone-300 font-light">${diag.diagnose}</div>`,
-                `<div class="mt-6 mb-1 text-accent uppercase tracking-wider text-xs font-sans font-medium">System-Direktive: ${diag.titel}</div>`,
-                `<div class="text-stone-400 font-light leading-relaxed">${diag.aktion}</div>`
-            ];
-
-            terminalTyping.innerHTML = lines.join('');
-            isTyping = false;
-        }
-
-        btnIntervention.addEventListener('click', async () => {
-            if (isTyping) return;
-            const diagnosis = calculateSystem();
-            
-            btnText.style.opacity = '0';
-            document.getElementById('btnIndicator').classList.remove('opacity-0');
-            
-            outputSection.classList.remove('hidden');
-            setTimeout(() => outputSection.classList.remove('opacity-0'), 50);
-
-            await typeTerminal(diagnosis);
-            
-            document.getElementById('btnIndicator').classList.add('opacity-0');
-            btnText.style.opacity = '1';
-        });
-
-        const btnReset = document.getElementById('btnReset');
-        const overlay = document.getElementById('lockdownOverlay');
-        const timerDisp = document.getElementById('timerDisplay');
-        const aphorismDisp = document.getElementById('aphorismDisplay');
-        const dashboard = document.getElementById('dashboard');
-        let timerInt;
-
-        btnReset.addEventListener('click', () => {
-            const randomAphorism = aphorisms[Math.floor(Math.random() * aphorisms.length)];
-            aphorismDisp.textContent = randomAphorism;
-
-            document.body.classList.add('lockdown');
-            overlay.classList.remove('hidden');
-            setTimeout(() => {
-                overlay.classList.remove('opacity-0');
-                dashboard.classList.add('opacity-0', 'pointer-events-none');
-            }, 50);
-
-            let timeLeft = 20 * 60;
-            updateTimer(timeLeft);
-
-            timerInt = setInterval(() => {
-                timeLeft--;
-                updateTimer(timeLeft);
-                if (timeLeft <= 0) endLockdown();
-            }, 1000);
-        });
-
-        function updateTimer(s) {
-            const m = Math.floor(s / 60).toString().padStart(2, '0');
-            const sec = (s % 60).toString().padStart(2, '0');
-            timerDisp.textContent = `${m}:${sec}`;
-        }
-
-        function endLockdown() {
-            clearInterval(timerInt);
-            document.body.classList.remove('lockdown');
-            overlay.classList.add('opacity-0');
-            dashboard.classList.remove('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-                outputSection.classList.add('hidden', 'opacity-0');
-                journalInput.value = '';
-            }, 1000);
-        }
     </script>
 </body>
 </html>
