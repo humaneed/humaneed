@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HUMANEED // Systemarchitektur</title>
+    <title>HUMANEED // Raum für Klarheit</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -19,13 +19,13 @@
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
-                        charcoal: {
-                            900: '#0a0a0c',
-                            800: '#121215',
-                            700: '#1e1e24',
-                            600: '#2a2a32',
+                        // Warme, erdige Dunkeltöne statt kaltem Grau
+                        stone: {
+                            900: '#1c1917',
+                            800: '#292524',
+                            700: '#44403c',
                         },
-                        accent: '#f59e0b', // Amber
+                        accent: '#d97706', // Ein weicheres, wärmeres Bernstein (Amber-600)
                     }
                 }
             }
@@ -34,129 +34,138 @@
     <style>
         body.lockdown { overflow: hidden; }
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #0a0a0c; }
-        ::-webkit-scrollbar-thumb { background: #1e1e24; }
+        ::-webkit-scrollbar-track { background: #1c1917; }
+        ::-webkit-scrollbar-thumb { background: #44403c; border-radius: 4px; }
         
+        /* Weichere, taktile Regler */
         input[type=range] {
             -webkit-appearance: none;
             background: transparent;
         }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 24px;
-            width: 12px;
-            border-radius: 0;
-            background: #f59e0b;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%; /* Organischere Form */
+            background: #d97706;
             cursor: pointer;
-            margin-top: -10px;
+            margin-top: -8px;
+            box-shadow: 0 0 10px rgba(217, 119, 6, 0.3); /* Sanftes Glühen */
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.1);
         }
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
             height: 4px;
             cursor: pointer;
-            background: #1e1e24;
+            background: #44403c;
+            border-radius: 2px;
         }
         input[type=range]:focus { outline: none; }
     </style>
 </head>
-<body class="bg-charcoal-900 text-zinc-300 font-sans antialiased selection:bg-accent selection:text-charcoal-900 min-h-screen flex flex-col relative">
+<body class="bg-stone-900 text-stone-300 font-sans antialiased selection:bg-accent selection:text-stone-900 min-h-screen flex flex-col relative selection:bg-opacity-30">
 
-    <div id="lockdownOverlay" class="fixed inset-0 bg-black z-50 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-1000 px-8 text-center">
-        <div id="timerDisplay" class="text-6xl md:text-8xl font-mono text-zinc-500 tracking-tighter mb-12">20:00</div>
-        <div id="aphorismDisplay" class="max-w-md text-zinc-400 font-light text-lg leading-relaxed mb-6"></div>
-        <div class="text-zinc-600 tracking-widest text-xs uppercase font-mono">Reizreduzierung aktiv. Keine Entscheidungen.</div>
+    <div id="lockdownOverlay" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-1000 px-8 text-center backdrop-blur-sm">
+        <div id="timerDisplay" class="text-6xl md:text-8xl font-light text-stone-500 tracking-tight mb-12">20:00</div>
+        <div id="aphorismDisplay" class="max-w-md text-stone-400 font-light text-xl leading-relaxed mb-8 italic"></div>
+        <div class="text-stone-500 tracking-widest text-xs uppercase font-medium">Reizreduzierung. Atme ein.</div>
     </div>
 
     <main id="dashboard" class="flex-1 w-full max-w-2xl mx-auto px-6 pt-12 md:pt-16 pb-12 flex flex-col transition-opacity duration-700">
         
-        <header class="mb-10 border-b border-charcoal-700 pb-4 flex justify-between items-end">
-            <h1 class="text-xs tracking-[0.3em] text-zinc-500 uppercase">Humaneed // Architektur</h1>
-            <div class="text-xs font-mono text-zinc-600" id="sysTime">00:00</div>
+        <header class="mb-12 border-b border-stone-800 pb-6 flex justify-between items-end">
+            <div>
+                <h1 class="text-lg font-medium text-stone-200 tracking-wide mb-1">Humaneed</h1>
+                <p class="text-xs text-stone-500 font-light">Raum für erlebte Selbstorganisation</p>
+            </div>
+            <div class="text-xs text-stone-500" id="sysTime">00:00</div>
         </header>
 
-        <section class="flex-1 space-y-8">
+        <section class="flex-1 space-y-10">
             
-            <div>
-                <div class="flex justify-between items-end mb-2">
-                    <label class="text-xs uppercase tracking-wider text-zinc-400">T-0: Biologische Basis (Schlaf / Hydration)</label>
-                    <span id="valBio" class="text-xs font-mono text-accent">50%</span>
+            <div class="bg-stone-800/50 p-6 rounded-xl border border-stone-800/80">
+                <div class="flex justify-between items-end mb-4">
+                    <label class="text-sm font-medium text-stone-300">Fundament <span class="text-stone-500 font-light ml-1">Körper & Schlaf</span></label>
+                    <span id="valBio" class="text-sm text-accent font-medium">50%</span>
                 </div>
                 <input type="range" id="sliderBio" min="0" max="100" value="50" class="w-full">
-                <div class="flex justify-between text-[10px] text-zinc-600 uppercase mt-1">
-                    <span>Erschöpft</span><span>Stabil</span>
+                <div class="flex justify-between text-[11px] text-stone-500 uppercase mt-3 font-medium">
+                    <span>Erschöpft</span><span>Kraftvoll</span>
                 </div>
             </div>
 
-            <div>
-                <div class="flex justify-between items-end mb-2">
-                    <label class="text-xs uppercase tracking-wider text-zinc-400">T-1: Vagal-Zustand (Kampf/Flucht vs. Sicherheit)</label>
-                    <span id="valVagal" class="text-xs font-mono text-accent">50%</span>
+            <div class="bg-stone-800/50 p-6 rounded-xl border border-stone-800/80">
+                <div class="flex justify-between items-end mb-4">
+                    <label class="text-sm font-medium text-stone-300">Nervensystem <span class="text-stone-500 font-light ml-1">Stresstoleranz</span></label>
+                    <span id="valVagal" class="text-sm text-accent font-medium">50%</span>
                 </div>
                 <input type="range" id="sliderVagal" min="0" max="100" value="50" class="w-full">
-                <div class="flex justify-between text-[10px] text-zinc-600 uppercase mt-1">
-                    <span>Überreizt</span><span>Kohärent</span>
+                <div class="flex justify-between text-[11px] text-stone-500 uppercase mt-3 font-medium">
+                    <span>Überreizt</span><span>Sicher & Ruhig</span>
                 </div>
             </div>
 
-            <div>
-                <div class="flex justify-between items-end mb-2">
-                    <label class="text-xs uppercase tracking-wider text-zinc-400">T-3: Kognition (Aufmerksamkeit / DMN)</label>
-                    <span id="valCog" class="text-xs font-mono text-accent">50%</span>
+            <div class="bg-stone-800/50 p-6 rounded-xl border border-stone-800/80">
+                <div class="flex justify-between items-end mb-4">
+                    <label class="text-sm font-medium text-stone-300">Geist <span class="text-stone-500 font-light ml-1">Fokus & Klarheit</span></label>
+                    <span id="valCog" class="text-sm text-accent font-medium">50%</span>
                 </div>
                 <input type="range" id="sliderCog" min="0" max="100" value="50" class="w-full">
-                <div class="flex justify-between text-[10px] text-zinc-600 uppercase mt-1">
-                    <span>Fragmentiert</span><span>Fokussiert</span>
+                <div class="flex justify-between text-[11px] text-stone-500 uppercase mt-3 font-medium">
+                    <span>Verloren</span><span>Klar</span>
                 </div>
             </div>
 
             <button 
                 id="btnIntervention" 
-                class="mt-8 w-full bg-charcoal-800 hover:bg-charcoal-700 text-zinc-300 text-xs tracking-[0.2em] uppercase py-5 border border-charcoal-700 hover:border-accent transition-all duration-300 flex justify-between items-center px-6">
-                <span>[ Struktur Evaluieren ]</span>
-                <span class="text-accent opacity-0 transition-opacity duration-300" id="btnIndicator">///</span>
+                class="mt-4 w-full bg-stone-800 hover:bg-stone-700 text-stone-200 text-sm font-medium tracking-wide py-5 rounded-xl border border-stone-700 hover:border-accent transition-all duration-300 flex justify-center items-center shadow-lg shadow-black/20">
+                <span id="btnText">Zustand auswerten</span>
+                <span class="text-accent opacity-0 absolute transition-opacity duration-300" id="btnIndicator">...</span>
             </button>
         </section>
 
         <section id="outputSection" class="mt-12 hidden opacity-0 transition-opacity duration-700">
-            <div class="border-t border-charcoal-700 pt-8">
+            <div class="pt-6">
                 
-                <div class="mb-4">
-                    <span class="text-xs uppercase tracking-wider text-zinc-500">Systemkohärenz</span>
-                    <div class="w-full h-1 bg-charcoal-800 mt-2">
-                        <div id="coherenceBar" class="h-full bg-accent w-0 transition-all duration-1000"></div>
+                <div class="mb-6 px-2">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-xs uppercase tracking-wider text-stone-500 font-medium">Kohärenz</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden">
+                        <div id="coherenceBar" class="h-full bg-accent w-0 transition-all duration-1000 rounded-full"></div>
                     </div>
                 </div>
 
-                <div class="bg-[#050505] border border-charcoal-700 p-6 font-mono text-sm leading-relaxed mt-4">
-                    <div id="terminalTyping" class="text-zinc-400"></div>
+                <div class="bg-stone-800/30 border border-stone-800/80 p-6 rounded-xl font-mono text-sm leading-relaxed text-stone-300 shadow-inner">
+                    <div id="terminalTyping"></div>
                 </div>
 
                 <button 
                     id="btnReset" 
-                    class="mt-8 w-full bg-transparent text-zinc-500 hover:text-zinc-300 text-xs tracking-[0.2em] uppercase py-4 border border-charcoal-800 hover:border-charcoal-600 transition-colors duration-300">
-                    [ Analogen Reset Erzwingen ]
+                    class="mt-8 w-full bg-transparent text-stone-400 hover:text-stone-200 text-sm font-medium tracking-wide py-4 border border-stone-700 hover:border-stone-500 rounded-xl transition-colors duration-300">
+                    Physischen Stop einleiten
                 </button>
             </div>
         </section>
     </main>
 
     <script>
-        // System Clock
         setInterval(() => {
             const now = new Date();
             document.getElementById('sysTime').textContent = now.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
         }, 1000);
 
-        // Aphorismen aus Teil I für den Lockdown-Screen
         const aphorisms = [
-            "Stärke ist die Fähigkeit, unter Druck bewusst zu bleiben. Gewalt ist leicht. Bewusstheit ist selten.",
-            "Stille beseitigt Ablenkung. In der Stille werden ungelöste Gedanken sichtbar. Und sobald etwas klar gesehen wird, wird Ehrlichkeit notwendig.",
-            "Wahrheit fordert Bindung heraus und fühlt sich schmerzhaft an, weil sie Illusionen auflöst.",
-            "Bedeutung findet sich nicht in Ereignissen, sondern in Aufmerksamkeit.",
+            "Stärke ist die Fähigkeit, unter Druck bewusst zu bleiben.",
+            "Stille beseitigt Ablenkung. In der Stille werden ungelöste Gedanken sichtbar.",
+            "Wahrheit fordert Bindung heraus und fühlt sich manchmal schmerzhaft an, weil sie Illusionen auflöst.",
+            "Bedeutung findet sich nicht in Ereignissen, sondern in deiner Aufmerksamkeit.",
             "Wenn du wirklich siehst, was in dir passiert, verändert sich dein Verhalten automatisch."
         ];
 
-        // Sliders
         const sliders = { bio: document.getElementById('sliderBio'), vagal: document.getElementById('sliderVagal'), cog: document.getElementById('sliderCog') };
         const vals = { bio: document.getElementById('valBio'), vagal: document.getElementById('valVagal'), cog: document.getElementById('valCog') };
 
@@ -165,56 +174,47 @@
         });
 
         const btnIntervention = document.getElementById('btnIntervention');
+        const btnText = document.getElementById('btnText');
         const outputSection = document.getElementById('outputSection');
         const terminalTyping = document.getElementById('terminalTyping');
         const coherenceBar = document.getElementById('coherenceBar');
         let isTyping = false;
 
-        // Logic Engine basierend auf den 15 Mini-Setups
         function calculateSystem() {
             const b = parseInt(sliders.bio.value);
             const v = parseInt(sliders.vagal.value);
-            const c = parseInt(sliders.cog.value); // Hier bedeutet niedrig=fragmentiert, hoch=fokussiert
+            const c = parseInt(sliders.cog.value);
 
-            // Systemkohärenz-Formel
             let coherence = Math.round((b * 0.5) + (v * 0.3) + (c * 0.2));
             let diag = {};
 
             if (b < 30 || coherence < 40) {
                 diag = {
                     kohärenz: coherence,
-                    status: "KRITISCH - POLYVAGALE ÜBERLASTUNG",
-                    diagnose: "Biologische Basis defizitär. Autopilot aktiv. Cortisol-Achse überreizt.",
-                    direktive: "SETUP 07 & 08",
+                    diagnose: "Dein Fundament ist erschöpft. Der Autopilot hat übernommen. Versuche jetzt keine komplexen Probleme zu lösen.",
                     titel: "Der physiologische Reset",
-                    aktion: "Smartphone auf Graustufen umstellen. Entfernt den primären Dopamin-Trigger. Eiskaltes Wasser über die Handgelenke, zweimal langsam ausatmen. Direkter Eingriff ins autonome Nervensystem."
+                    aktion: "Lass eiskaltes Wasser über deine Handgelenke laufen. Atme zweimal tief aus. Nimm dir 20 Minuten völlige Ruhe, ohne einen Bildschirm."
                 };
             } else if (c < 40) {
                 diag = {
                     kohärenz: coherence,
-                    status: "FRAGMENTIERT - DMN ÜBERSTIMULIERT",
-                    diagnose: "Default Mode Network überstimuliert. Kognitive Kapazität erschöpft. Dauerlärm.",
-                    direktive: "SETUP 04 & 11",
+                    diagnose: "Dein Geist ist überstimuliert. Die kognitive Kapazität ist am Limit, der Lärm ist zu laut.",
                     titel: "Kognitive Integrität",
-                    aktion: "1-Tab-Regel anwenden: Ein Fenster für die aktuelle Aufgabe. Der weite Blick: Alle 60 Minuten 2 Minuten auf einen weit entfernten Punkt schauen, um Amygdala-Aktivierung zu senken."
+                    aktion: "Schließe alle Tabs bis auf einen. Richte deinen Blick für 2 Minuten entspannt auf einen weit entfernten Punkt. Finde deinen Fokus wieder."
                 };
             } else if (v < 40) {
                 diag = {
                     kohärenz: coherence,
-                    status: "ASYMMETRISCH - SYMPATHIKUS DOMINIERT",
-                    diagnose: "Chronische Überaktivierung detektiert. Vorbereitung für glymphatisches System (Schlaf) blockiert.",
-                    direktive: "SETUP 09",
+                    diagnose: "Dein Nervensystem ist in ständiger Alarmbereitschaft. Die nötige Vorbereitung für tiefen Schlaf ist blockiert.",
                     titel: "Low-Light-Abend",
-                    aktion: "90 Minuten vor dem Schlafen alle Deckenlampen aus, nur warme Lichtquellen. Melatonin-Synthese ermöglichen — circadiane Genexpression nicht stören."
+                    aktion: "Schalte die Deckenlampen aus. Nutze nur noch warme, schwache Lichtquellen. Gib deinem Körper das Signal, dass er sicher ist."
                 };
             } else {
                 diag = {
                     kohärenz: coherence,
-                    status: "STABIL - STRUKTUR TRÄGT",
-                    diagnose: "Systemparameter im Toleranzbereich. Erlebte Selbstorganisation stabil.",
-                    direktive: "SETUP 15",
+                    diagnose: "Deine Struktur trägt. Du bist zentriert und handlungsfähig.",
                     titel: "Der klare Cut",
-                    aktion: "Laptop zuklappen, Schreibtisch leerräumen. Das physische Ritual übernimmt die Funktion des fehlenden Arbeitsweges. Struktur halten."
+                    aktion: "Räume deinen Schreibtisch physisch auf. Behalte diese Ordnung bei. Das physische Ritual schützt deinen mentalen Raum."
                 };
             }
             return diag;
@@ -223,16 +223,15 @@
         async function typeTerminal(diag) {
             isTyping = true;
             coherenceBar.style.width = '0%';
-            terminalTyping.innerHTML = '<span class="text-zinc-600 animate-pulse">_</span>';
+            terminalTyping.innerHTML = '<span class="text-stone-500 animate-pulse">...</span>';
             
-            await new Promise(r => setTimeout(r, 400));
+            await new Promise(r => setTimeout(r, 600));
             coherenceBar.style.width = diag.kohärenz + '%';
             
             const lines = [
-                `<span class="text-zinc-600">> KOHÄRENZ: ${diag.kohärenz}% [${diag.status}]</span><br><br>`,
-                `<span class="text-zinc-300">DIAGNOSE:</span> <span class="text-zinc-400">${diag.diagnose}</span><br><br>`,
-                `<span class="text-accent">DIREKTIVE [${diag.direktive}]:</span> <span class="text-zinc-200">${diag.titel}</span><br>`,
-                `<span class="text-zinc-400">${diag.aktion}</span>`
+                `<div class="mb-4 text-stone-300">${diag.diagnose}</div>`,
+                `<div class="mt-6 mb-1 text-accent uppercase tracking-wider text-xs font-sans font-medium">Empfehlung: ${diag.titel}</div>`,
+                `<div class="text-stone-400 leading-relaxed">${diag.aktion}</div>`
             ];
 
             terminalTyping.innerHTML = lines.join('');
@@ -243,8 +242,8 @@
             if (isTyping) return;
             const diagnosis = calculateSystem();
             
+            btnText.style.opacity = '0';
             document.getElementById('btnIndicator').classList.remove('opacity-0');
-            btnIntervention.classList.add('border-accent');
             
             outputSection.classList.remove('hidden');
             setTimeout(() => outputSection.classList.remove('opacity-0'), 50);
@@ -252,10 +251,9 @@
             await typeTerminal(diagnosis);
             
             document.getElementById('btnIndicator').classList.add('opacity-0');
-            btnIntervention.classList.remove('border-accent');
+            btnText.style.opacity = '1';
         });
 
-        // Lockdown Logic
         const btnReset = document.getElementById('btnReset');
         const overlay = document.getElementById('lockdownOverlay');
         const timerDisp = document.getElementById('timerDisplay');
@@ -264,7 +262,6 @@
         let timerInt;
 
         btnReset.addEventListener('click', () => {
-            // Zufälligen Aphorismus auswählen
             const randomAphorism = aphorisms[Math.floor(Math.random() * aphorisms.length)];
             aphorismDisp.textContent = randomAphorism;
 
@@ -299,9 +296,6 @@
             setTimeout(() => {
                 overlay.classList.add('hidden');
                 outputSection.classList.add('hidden', 'opacity-0');
-                sliders.bio.value = 50; vals.bio.textContent = "50%";
-                sliders.vagal.value = 50; vals.vagal.textContent = "50%";
-                sliders.cog.value = 50; vals.cog.textContent = "50%";
             }, 1000);
         }
     </script>
