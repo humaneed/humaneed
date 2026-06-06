@@ -19,13 +19,12 @@
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
-                        // Warme, erdige Dunkeltöne statt kaltem Grau
                         stone: {
                             900: '#1c1917',
                             800: '#292524',
                             700: '#44403c',
                         },
-                        accent: '#d97706', // Ein weicheres, wärmeres Bernstein (Amber-600)
+                        accent: '#d97706',
                     }
                 }
             }
@@ -37,7 +36,6 @@
         ::-webkit-scrollbar-track { background: #1c1917; }
         ::-webkit-scrollbar-thumb { background: #44403c; border-radius: 4px; }
         
-        /* Weichere, taktile Regler */
         input[type=range] {
             -webkit-appearance: none;
             background: transparent;
@@ -46,11 +44,11 @@
             -webkit-appearance: none;
             height: 20px;
             width: 20px;
-            border-radius: 50%; /* Organischere Form */
+            border-radius: 50%;
             background: #d97706;
             cursor: pointer;
             margin-top: -8px;
-            box-shadow: 0 0 10px rgba(217, 119, 6, 0.3); /* Sanftes Glühen */
+            box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);
             transition: transform 0.1s;
         }
         input[type=range]::-webkit-slider-thumb:active {
@@ -84,7 +82,7 @@
             <div class="text-xs text-stone-500" id="sysTime">00:00</div>
         </header>
 
-        <section class="flex-1 space-y-10">
+        <section class="flex-1 space-y-6">
             
             <div class="bg-stone-800/50 p-6 rounded-xl border border-stone-800/80">
                 <div class="flex justify-between items-end mb-4">
@@ -92,9 +90,6 @@
                     <span id="valBio" class="text-sm text-accent font-medium">50%</span>
                 </div>
                 <input type="range" id="sliderBio" min="0" max="100" value="50" class="w-full">
-                <div class="flex justify-between text-[11px] text-stone-500 uppercase mt-3 font-medium">
-                    <span>Erschöpft</span><span>Kraftvoll</span>
-                </div>
             </div>
 
             <div class="bg-stone-800/50 p-6 rounded-xl border border-stone-800/80">
@@ -103,9 +98,6 @@
                     <span id="valVagal" class="text-sm text-accent font-medium">50%</span>
                 </div>
                 <input type="range" id="sliderVagal" min="0" max="100" value="50" class="w-full">
-                <div class="flex justify-between text-[11px] text-stone-500 uppercase mt-3 font-medium">
-                    <span>Überreizt</span><span>Sicher & Ruhig</span>
-                </div>
             </div>
 
             <div class="bg-stone-800/50 p-6 rounded-xl border border-stone-800/80">
@@ -114,14 +106,20 @@
                     <span id="valCog" class="text-sm text-accent font-medium">50%</span>
                 </div>
                 <input type="range" id="sliderCog" min="0" max="100" value="50" class="w-full">
-                <div class="flex justify-between text-[11px] text-stone-500 uppercase mt-3 font-medium">
-                    <span>Verloren</span><span>Klar</span>
-                </div>
+            </div>
+
+            <div class="bg-stone-800/30 p-6 rounded-xl border border-stone-800/50 mt-4">
+                <label for="journalInput" class="block text-sm font-medium text-stone-300 mb-3">Micro-Journaling <span class="text-stone-500 font-light ml-1">Was blockiert das System gerade? (Optional)</span></label>
+                <textarea 
+                    id="journalInput" 
+                    rows="3" 
+                    class="w-full bg-stone-900/50 text-stone-300 border border-stone-700/50 rounded-lg p-4 font-light text-sm resize-none transition-colors duration-300 focus:border-accent/50 focus:bg-stone-900 focus:outline-none placeholder-stone-600"
+                    placeholder="Gedanken festhalten. Den Autopiloten unterbrechen..."></textarea>
             </div>
 
             <button 
                 id="btnIntervention" 
-                class="mt-4 w-full bg-stone-800 hover:bg-stone-700 text-stone-200 text-sm font-medium tracking-wide py-5 rounded-xl border border-stone-700 hover:border-accent transition-all duration-300 flex justify-center items-center shadow-lg shadow-black/20">
+                class="mt-6 w-full bg-stone-800 hover:bg-stone-700 text-stone-200 text-sm font-medium tracking-wide py-5 rounded-xl border border-stone-700 hover:border-accent transition-all duration-300 flex justify-center items-center shadow-lg shadow-black/20">
                 <span id="btnText">Zustand auswerten</span>
                 <span class="text-accent opacity-0 absolute transition-opacity duration-300" id="btnIndicator">...</span>
             </button>
@@ -132,7 +130,7 @@
                 
                 <div class="mb-6 px-2">
                     <div class="flex justify-between items-end mb-2">
-                        <span class="text-xs uppercase tracking-wider text-stone-500 font-medium">Kohärenz</span>
+                        <span class="text-xs uppercase tracking-wider text-stone-500 font-medium">Systemkohärenz</span>
                     </div>
                     <div class="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden">
                         <div id="coherenceBar" class="h-full bg-accent w-0 transition-all duration-1000 rounded-full"></div>
@@ -161,13 +159,13 @@
         const aphorisms = [
             "Stärke ist die Fähigkeit, unter Druck bewusst zu bleiben.",
             "Stille beseitigt Ablenkung. In der Stille werden ungelöste Gedanken sichtbar.",
-            "Wahrheit fordert Bindung heraus und fühlt sich manchmal schmerzhaft an, weil sie Illusionen auflöst.",
             "Bedeutung findet sich nicht in Ereignissen, sondern in deiner Aufmerksamkeit.",
             "Wenn du wirklich siehst, was in dir passiert, verändert sich dein Verhalten automatisch."
         ];
 
         const sliders = { bio: document.getElementById('sliderBio'), vagal: document.getElementById('sliderVagal'), cog: document.getElementById('sliderCog') };
         const vals = { bio: document.getElementById('valBio'), vagal: document.getElementById('valVagal'), cog: document.getElementById('valCog') };
+        const journalInput = document.getElementById('journalInput');
 
         Object.keys(sliders).forEach(key => {
             sliders[key].addEventListener('input', (e) => { vals[key].textContent = e.target.value + '%'; });
@@ -184,36 +182,52 @@
             const b = parseInt(sliders.bio.value);
             const v = parseInt(sliders.vagal.value);
             const c = parseInt(sliders.cog.value);
+            const text = journalInput.value.toLowerCase();
 
             let coherence = Math.round((b * 0.5) + (v * 0.3) + (c * 0.2));
             let diag = {};
 
-            if (b < 30 || coherence < 40) {
+            // NLP Logik basierend auf der philosophischen Architektur
+            if (text.includes('handy') || text.includes('ablenkung') || text.includes('scrollen')) {
                 diag = {
                     kohärenz: coherence,
-                    diagnose: "Dein Fundament ist erschöpft. Der Autopilot hat übernommen. Versuche jetzt keine komplexen Probleme zu lösen.",
-                    titel: "Der physiologische Reset",
-                    aktion: "Lass eiskaltes Wasser über deine Handgelenke laufen. Atme zweimal tief aus. Nimm dir 20 Minuten völlige Ruhe, ohne einen Bildschirm."
+                    diagnose: "Default Mode Network (DMN) überstimuliert. Der Autopilot hat die Entscheidungsfindung übernommen. Die Lücke zwischen Reiz und Reaktion ist geschlossen.",
+                    titel: "Kognitive Integrität (Setup 08 & 04)",
+                    aktion: "Graustufen-Modus aktivieren. Dies bricht den Dopamin-Loop. Schließe alle Tabs bis auf einen. Konfrontiere das System mit Stille."
+                };
+            } else if (text.includes('entscheidung') || text.includes('druck') || text.includes('stress') || text.includes('vergleich')) {
+                diag = {
+                    kohärenz: coherence,
+                    diagnose: "Sympathikus-Dominanz. Das innere Identitätsgefühl ist instabil, das System sucht externen Halt. Epigenetische Stressreaktion aktiv.",
+                    titel: "Der physische Anker (Setup 12)",
+                    aktion: "Das 'Free Won't' nutzen. Stoppe die laufende Handlung. Eiskaltes Wasser über die Handgelenke (Vagus-Nerv Stimulation). Keine weiteren Entscheidungen heute."
+                };
+            } else if (text.includes('müde') || text.includes('schlaf') || text.includes('abend')) {
+                diag = {
+                    kohärenz: coherence,
+                    diagnose: "Circadiane Desynchronisation. Die biologische Kapazität (BDNF) sinkt. Das glymphatische System benötigt Vorbereitung zur Reinigung.",
+                    titel: "Low-Light-Abend (Setup 09)",
+                    aktion: "Lichtquellen radikal dimmen. Melatonin-Synthese ermöglichen. Das System muss herunterfahren, um die Struktur zu wahren."
+                };
+            } else if (b < 30 || coherence < 40) {
+                diag = {
+                    kohärenz: coherence,
+                    diagnose: "Dein physisches Fundament ist erschöpft. Kausale Exklusion greift: Der Körper limitiert den Geist.",
+                    titel: "Der physiologische Reset (Setup 07)",
+                    aktion: "Atme zweimal tief aus. Nimm dir 20 Minuten völlige Ruhe, um den Sympathikus zu deaktivieren."
                 };
             } else if (c < 40) {
                 diag = {
                     kohärenz: coherence,
-                    diagnose: "Dein Geist ist überstimuliert. Die kognitive Kapazität ist am Limit, der Lärm ist zu laut.",
-                    titel: "Kognitive Integrität",
-                    aktion: "Schließe alle Tabs bis auf einen. Richte deinen Blick für 2 Minuten entspannt auf einen weit entfernten Punkt. Finde deinen Fokus wieder."
-                };
-            } else if (v < 40) {
-                diag = {
-                    kohärenz: coherence,
-                    diagnose: "Dein Nervensystem ist in ständiger Alarmbereitschaft. Die nötige Vorbereitung für tiefen Schlaf ist blockiert.",
-                    titel: "Low-Light-Abend",
-                    aktion: "Schalte die Deckenlampen aus. Nutze nur noch warme, schwache Lichtquellen. Gib deinem Körper das Signal, dass er sicher ist."
+                    diagnose: "Dein Geist ist überstimuliert. Kognitive Kapazität am Limit.",
+                    titel: "Der weite Blick (Setup 11)",
+                    aktion: "Richte deinen Blick für 2 Minuten entspannt auf einen weit entfernten Punkt, um die Amygdala zu beruhigen."
                 };
             } else {
                 diag = {
                     kohärenz: coherence,
-                    diagnose: "Deine Struktur trägt. Du bist zentriert und handlungsfähig.",
-                    titel: "Der klare Cut",
+                    diagnose: "Erlebte Selbstorganisation ist stabil. Das Ich-Narrativ trägt.",
+                    titel: "Der klare Cut (Setup 15)",
                     aktion: "Räume deinen Schreibtisch physisch auf. Behalte diese Ordnung bei. Das physische Ritual schützt deinen mentalen Raum."
                 };
             }
@@ -229,9 +243,9 @@
             coherenceBar.style.width = diag.kohärenz + '%';
             
             const lines = [
-                `<div class="mb-4 text-stone-300">${diag.diagnose}</div>`,
-                `<div class="mt-6 mb-1 text-accent uppercase tracking-wider text-xs font-sans font-medium">Empfehlung: ${diag.titel}</div>`,
-                `<div class="text-stone-400 leading-relaxed">${diag.aktion}</div>`
+                `<div class="mb-4 text-stone-300 font-light">${diag.diagnose}</div>`,
+                `<div class="mt-6 mb-1 text-accent uppercase tracking-wider text-xs font-sans font-medium">System-Direktive: ${diag.titel}</div>`,
+                `<div class="text-stone-400 font-light leading-relaxed">${diag.aktion}</div>`
             ];
 
             terminalTyping.innerHTML = lines.join('');
@@ -296,6 +310,7 @@
             setTimeout(() => {
                 overlay.classList.add('hidden');
                 outputSection.classList.add('hidden', 'opacity-0');
+                journalInput.value = '';
             }, 1000);
         }
     </script>
