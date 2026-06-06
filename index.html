@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HUMANEED // Struktur-Navigator</title>
+    <title>HUMANEED // Diagnostik-Terminal</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,11 +19,11 @@
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
-                        // Exakte "Matte Charcoal" und "Amber" Akzent-Farben
                         charcoal: {
                             900: '#0a0a0c',
                             800: '#121215',
                             700: '#1e1e24',
+                            600: '#2a2a32',
                         },
                         accent: '#f59e0b', // Amber-500
                     }
@@ -32,16 +32,32 @@
         }
     </script>
     <style>
-        /* Verhindert Scrollen während des Lockdowns */
         body.lockdown { overflow: hidden; }
-        
-        /* Minimalistisches Scrollbar-Design */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #0a0a0c; }
         ::-webkit-scrollbar-thumb { background: #1e1e24; }
         
-        /* Harte Kanten, keine Standard-Fokus-Ringe */
-        textarea:focus, button:focus { outline: none; }
+        /* Taktiles Slider-Styling (Industrie-Look) */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 12px;
+            border-radius: 0;
+            background: #f59e0b; /* Amber */
+            cursor: pointer;
+            margin-top: -10px;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #1e1e24;
+        }
+        input[type=range]:focus { outline: none; }
     </style>
 </head>
 <body class="bg-charcoal-900 text-zinc-300 font-sans antialiased selection:bg-accent selection:text-charcoal-900 min-h-screen flex flex-col relative">
@@ -51,194 +67,241 @@
         <div class="text-zinc-600 tracking-widest text-sm uppercase font-light">Reizreduzierung aktiv. Keine Entscheidungen.</div>
     </div>
 
-    <main id="dashboard" class="flex-1 w-full max-w-2xl mx-auto px-6 pt-12 md:pt-24 pb-12 flex flex-col transition-opacity duration-700">
+    <main id="dashboard" class="flex-1 w-full max-w-2xl mx-auto px-6 pt-12 md:pt-16 pb-12 flex flex-col transition-opacity duration-700">
         
-        <header class="mb-12 border-b border-charcoal-700 pb-4">
-            <h1 class="text-xs tracking-[0.3em] text-zinc-500 uppercase">Humaneed // Architektur</h1>
+        <header class="mb-10 border-b border-charcoal-700 pb-4 flex justify-between items-end">
+            <h1 class="text-xs tracking-[0.3em] text-zinc-500 uppercase">Humaneed // Diagnostik</h1>
+            <div class="text-xs font-mono text-zinc-600" id="sysTime">00:00</div>
         </header>
 
-        <section class="flex-1">
-            <label for="stateInput" class="block text-xs uppercase tracking-wider text-zinc-500 mb-4">Systemzustand</label>
-            <textarea 
-                id="stateInput" 
-                rows="4" 
-                class="w-full bg-charcoal-800 text-zinc-200 border-l-2 border-charcoal-700 p-4 font-light text-lg resize-none transition-colors duration-300 focus:border-accent focus:bg-charcoal-700 placeholder-zinc-600"
-                placeholder="Aktuelle kognitive Auslastung beschreiben... (z.B. Kopf voll, 10 Stunden gearbeitet, gestresst)"></textarea>
+        <section class="flex-1 space-y-8">
             
+            <div>
+                <div class="flex justify-between items-end mb-2">
+                    <label class="text-xs uppercase tracking-wider text-zinc-400">T-0: Biologische Basis (Schlaf/Regeneration)</label>
+                    <span id="valBio" class="text-xs font-mono text-accent">50%</span>
+                </div>
+                <input type="range" id="sliderBio" min="0" max="100" value="50" class="w-full">
+                <div class="flex justify-between text-[10px] text-zinc-600 uppercase mt-1">
+                    <span>Erschöpft</span><span>Optimal</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-end mb-2">
+                    <label class="text-xs uppercase tracking-wider text-zinc-400">T-1: Vagal-Zustand (Sicherheit/Stress)</label>
+                    <span id="valVagal" class="text-xs font-mono text-accent">50%</span>
+                </div>
+                <input type="range" id="sliderVagal" min="0" max="100" value="50" class="w-full">
+                <div class="flex justify-between text-[10px] text-zinc-600 uppercase mt-1">
+                    <span>Kampf/Flucht</span><span>Sicher/Kohärent</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-end mb-2">
+                    <label class="text-xs uppercase tracking-wider text-zinc-400">T-3: Kognitive Last (Reizüberflutung)</label>
+                    <span id="valCog" class="text-xs font-mono text-accent">50%</span>
+                </div>
+                <input type="range" id="sliderCog" min="0" max="100" value="50" class="w-full">
+                <div class="flex justify-between text-[10px] text-zinc-600 uppercase mt-1">
+                    <span>Klar/Fokussiert</span><span>Fragmentiert/Überlastet</span>
+                </div>
+            </div>
+
             <button 
                 id="btnIntervention" 
-                class="mt-6 w-full bg-charcoal-800 hover:bg-charcoal-700 text-zinc-300 text-xs tracking-[0.2em] uppercase py-4 border border-charcoal-700 hover:border-accent transition-all duration-300 flex justify-between items-center px-6">
-                <span>[ Intervention Anfordern ]</span>
+                class="mt-8 w-full bg-charcoal-800 hover:bg-charcoal-700 text-zinc-300 text-xs tracking-[0.2em] uppercase py-5 border border-charcoal-700 hover:border-accent transition-all duration-300 flex justify-between items-center px-6">
+                <span>[ System Berechnen ]</span>
                 <span class="text-accent opacity-0 transition-opacity duration-300" id="btnIndicator">///</span>
             </button>
         </section>
 
         <section id="outputSection" class="mt-12 hidden opacity-0 transition-opacity duration-700">
             <div class="border-t border-charcoal-700 pt-8">
-                <h2 class="text-xs uppercase tracking-wider text-accent mb-4">Diagnostik-Terminal</h2>
                 
-                <div class="bg-[#050505] border border-charcoal-700 p-6 font-mono text-sm leading-relaxed">
+                <div class="mb-4">
+                    <span class="text-xs uppercase tracking-wider text-zinc-500">Systemkohärenz</span>
+                    <div class="w-full h-1 bg-charcoal-800 mt-2">
+                        <div id="coherenceBar" class="h-full bg-accent w-0 transition-all duration-1000"></div>
+                    </div>
+                </div>
+
+                <div class="bg-[#050505] border border-charcoal-700 p-6 font-mono text-sm leading-relaxed mt-4">
                     <div id="terminalTyping" class="text-zinc-400"></div>
                 </div>
 
                 <button 
                     id="btnReset" 
                     class="mt-8 w-full bg-transparent text-zinc-500 hover:text-zinc-300 text-xs tracking-[0.2em] uppercase py-4 border border-charcoal-800 hover:border-charcoal-600 transition-colors duration-300">
-                    [ System Reset ]
+                    [ Analogen Reset Starten ]
                 </button>
             </div>
         </section>
     </main>
 
     <script>
-        // DOM Elements
-        const stateInput = document.getElementById('stateInput');
+        // System Clock Update
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('sysTime').textContent = now.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
+        }, 1000);
+
+        // Sliders Logic
+        const sliders = {
+            bio: document.getElementById('sliderBio'),
+            vagal: document.getElementById('sliderVagal'),
+            cog: document.getElementById('sliderCog')
+        };
+        const vals = {
+            bio: document.getElementById('valBio'),
+            vagal: document.getElementById('valVagal'),
+            cog: document.getElementById('valCog')
+        };
+
+        Object.keys(sliders).forEach(key => {
+            sliders[key].addEventListener('input', (e) => {
+                vals[key].textContent = e.target.value + '%';
+            });
+        });
+
+        // Elements
         const btnIntervention = document.getElementById('btnIntervention');
-        const btnIndicator = document.getElementById('btnIndicator');
         const outputSection = document.getElementById('outputSection');
         const terminalTyping = document.getElementById('terminalTyping');
-        const btnReset = document.getElementById('btnReset');
-        const lockdownOverlay = document.getElementById('lockdownOverlay');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const dashboard = document.getElementById('dashboard');
-
-        // State
+        const coherenceBar = document.getElementById('coherenceBar');
         let isTyping = false;
-        let timerInterval;
 
-        // Mock Logic Engine (Simuliert das LLM-JSON)
-        function analyzeState(text) {
-            const lowerText = text.toLowerCase();
+        // Logic Engine (Die Formel aus dem Paper)
+        function calculateSystem() {
+            const b = parseInt(sliders.bio.value);
+            const v = parseInt(sliders.vagal.value);
+            const c = parseInt(sliders.cog.value);
+
+            // Formel: Bio(50%) + Vagal(30%) + InvertedCog(20%)
+            let coherence = Math.round((b * 0.5) + (v * 0.3) + ((100 - c) * 0.2));
             
-            // Regelwerk basierend auf den 15 Mini-Setups
-            if (lowerText.includes('stress') || lowerText.includes('kopf voll') || lowerText.includes('10 stunden')) {
-                return {
-                    diagnose: "Polyvagale Überlastung. Sympathikus dominiert. Autopilot aktiv.",
+            let diag = {};
+
+            if (b < 30 || coherence < 40) {
+                diag = {
+                    kohärenz: coherence,
+                    status: "KRITISCH",
+                    diagnose: "Polyvagale Überlastung. Biologische Basis defizitär. Autopilot aktiv.",
                     direktive: "SETUP 07 & 08",
-                    titel: "Der physiologische Reset",
-                    aktion: "Graustufen-Modus aktivieren. Eiskaltes Wasser über die Handgelenke. 20 Minuten Reizreduzierung. Keine Entscheidungen erzwingen."
+                    titel: "Physiologischer Reset",
+                    aktion: "Graustufen-Modus. Eiskaltes Wasser über Handgelenke. 20 Min. Lockdown erzwingen."
                 };
-            } else if (lowerText.includes('müde') || lowerText.includes('schlafen') || lowerText.includes('abend')) {
-                return {
-                    diagnose: "Circadiane Desynchronisation. Vorbereitung für glymphatisches System erforderlich.",
-                    direktive: "SETUP 09",
-                    titel: "Low-Light-Abend",
-                    aktion: "Alle Deckenlampen aus. Nur warme Lichtquellen. Melatonin-Synthese ermöglichen. Bildschirme abschalten."
-                };
-            } else if (lowerText.includes('unruhig') || lowerText.includes('fokus') || lowerText.includes('ablenkung')) {
-                return {
-                    diagnose: "Fragmentierte Aufmerksamkeit. Default Mode Network (DMN) überstimuliert.",
+            } else if (c > 75) {
+                diag = {
+                    kohärenz: coherence,
+                    status: "FRAGMENTIERT",
+                    diagnose: "DMN überstimuliert. Kognitive Kapazität erschöpft.",
                     direktive: "SETUP 04 & 11",
                     titel: "Kognitive Integrität",
-                    aktion: "1-Tab-Regel anwenden. 2 Minuten weiten Blick aus dem Fenster. Physischer Anker (Füße spüren)."
+                    aktion: "1-Tab-Regel anwenden. 2 Minuten weiten Blick fokussieren. Keine neuen Entscheidungen."
+                };
+            } else if (v < 40) {
+                diag = {
+                    kohärenz: coherence,
+                    status: "ASYMMETRISCH",
+                    diagnose: "Sympathikus-Dominanz. Regeneration erforderlich.",
+                    direktive: "SETUP 09",
+                    titel: "Low-Light-Abend",
+                    aktion: "Licht dimmen. Melatonin-Synthese ermöglichen. Reizquellen physisch entfernen."
                 };
             } else {
-                return {
-                    diagnose: "Strukturelle Diskrepanz detektiert. System benötigt Kalibrierung.",
-                    direktive: "SETUP 01",
-                    titel: "Der Schwellen-Puffer",
-                    aktion: "Physischer Stop. Dreimal tief ausatmen. Aktuelle Umgebung gedanklich schließen, bevor die nächste Aktion beginnt."
+                diag = {
+                    kohärenz: coherence,
+                    status: "STABIL",
+                    diagnose: "Systemparameter im Toleranzbereich. Struktur hält.",
+                    direktive: "SETUP 15",
+                    titel: "Der klare Cut",
+                    aktion: "Arbeitsplatz physisch bereinigen. Aktuelle Routine beibehalten."
                 };
             }
+            return diag;
         }
 
-        // Terminal Schreib-Effekt
-        async function typeText(textObj, element) {
+        async function typeTerminal(diag) {
             isTyping = true;
-            element.innerHTML = '';
+            coherenceBar.style.width = '0%';
+            terminalTyping.innerHTML = '<span class="text-zinc-600 animate-pulse">_</span>';
+            
+            await new Promise(r => setTimeout(r, 400));
+            coherenceBar.style.width = diag.kohärenz + '%';
             
             const lines = [
-                `<span class="text-zinc-600">> ANALYSE LÄUFT...</span><br><br>`,
-                `<span class="text-zinc-300">DIAGNOSE:</span> <span class="text-zinc-400">${textObj.diagnose}</span><br><br>`,
-                `<span class="text-accent">DIREKTIVE [${textObj.direktive}]:</span> <span class="text-zinc-200">${textObj.titel}</span><br>`,
-                `<span class="text-zinc-400">${textObj.aktion}</span>`
+                `<span class="text-zinc-600">> SYSTEMKOHÄRENZ: ${diag.kohärenz}% [${diag.status}]</span><br><br>`,
+                `<span class="text-zinc-300">DIAGNOSE:</span> <span class="text-zinc-400">${diag.diagnose}</span><br><br>`,
+                `<span class="text-accent">DIREKTIVE [${diag.direktive}]:</span> <span class="text-zinc-200">${diag.titel}</span><br>`,
+                `<span class="text-zinc-400">${diag.aktion}</span>`
             ];
 
-            let htmlString = lines.join('');
-            
-            // Simulierter "Maschinen-Output" Delay
-            element.innerHTML = '<span class="text-zinc-600 animate-pulse">_</span>';
-            await new Promise(r => setTimeout(r, 600));
-            
-            element.innerHTML = htmlString;
+            terminalTyping.innerHTML = lines.join('');
             isTyping = false;
         }
 
-        // Intervention Button Logic
         btnIntervention.addEventListener('click', async () => {
             if (isTyping) return;
+            const diagnosis = calculateSystem();
             
-            const inputText = stateInput.value.trim();
-            if (!inputText) return; // Nichts tun bei leerem Input
-
-            // UI Feedback
-            btnIndicator.classList.remove('opacity-0');
+            document.getElementById('btnIndicator').classList.remove('opacity-0');
             btnIntervention.classList.add('border-accent');
             
-            // Sektion anzeigen
             outputSection.classList.remove('hidden');
-            // Timeout für CSS Transition
-            setTimeout(() => {
-                outputSection.classList.remove('opacity-0');
-            }, 50);
+            setTimeout(() => outputSection.classList.remove('opacity-0'), 50);
 
-            // Diagnose holen und schreiben
-            const diagnosis = analyzeState(inputText);
-            await typeText(diagnosis, terminalTyping);
+            await typeTerminal(diagnosis);
             
-            btnIndicator.classList.add('opacity-0');
+            document.getElementById('btnIndicator').classList.add('opacity-0');
             btnIntervention.classList.remove('border-accent');
         });
 
-        // 20-Minuten Timer Logic (Der Lockdown)
-        function startLockdown() {
-            // UI abriegeln
+        // Lockdown Timer
+        const btnReset = document.getElementById('btnReset');
+        const overlay = document.getElementById('lockdownOverlay');
+        const timerDisp = document.getElementById('timerDisplay');
+        const dashboard = document.getElementById('dashboard');
+        let timerInt;
+
+        btnReset.addEventListener('click', () => {
             document.body.classList.add('lockdown');
-            lockdownOverlay.classList.remove('hidden');
-            
+            overlay.classList.remove('hidden');
             setTimeout(() => {
-                lockdownOverlay.classList.remove('opacity-0');
+                overlay.classList.remove('opacity-0');
                 dashboard.classList.add('opacity-0', 'pointer-events-none');
             }, 50);
 
-            let timeLeft = 20 * 60; // 20 Minuten in Sekunden
-            
-            // Display initial setzen
-            updateTimerDisplay(timeLeft);
+            let timeLeft = 20 * 60;
+            updateTimer(timeLeft);
 
-            timerInterval = setInterval(() => {
+            timerInt = setInterval(() => {
                 timeLeft--;
-                updateTimerDisplay(timeLeft);
-
-                if (timeLeft <= 0) {
-                    endLockdown();
-                }
+                updateTimer(timeLeft);
+                if (timeLeft <= 0) endLockdown();
             }, 1000);
-        }
+        });
 
-        function updateTimerDisplay(seconds) {
-            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            const s = (seconds % 60).toString().padStart(2, '0');
-            timerDisplay.textContent = `${m}:${s}`;
+        function updateTimer(s) {
+            const m = Math.floor(s / 60).toString().padStart(2, '0');
+            const sec = (s % 60).toString().padStart(2, '0');
+            timerDisp.textContent = `${m}:${sec}`;
         }
 
         function endLockdown() {
-            clearInterval(timerInterval);
+            clearInterval(timerInt);
             document.body.classList.remove('lockdown');
-            lockdownOverlay.classList.add('opacity-0');
+            overlay.classList.add('opacity-0');
             dashboard.classList.remove('opacity-0', 'pointer-events-none');
-            
             setTimeout(() => {
-                lockdownOverlay.classList.add('hidden');
-                // Input zurücksetzen nach dem Reset
-                stateInput.value = '';
+                overlay.classList.add('hidden');
                 outputSection.classList.add('hidden', 'opacity-0');
+                sliders.bio.value = 50; vals.bio.textContent = "50%";
+                sliders.vagal.value = 50; vals.vagal.textContent = "50%";
+                sliders.cog.value = 50; vals.cog.textContent = "50%";
             }, 1000);
         }
-
-        // Event Listener für den Reset Button
-        btnReset.addEventListener('click', startLockdown);
-
     </script>
 </body>
 </html>
