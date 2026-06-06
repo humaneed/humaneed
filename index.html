@@ -4,37 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HUMANEED // Raum für Klarheit</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        stone: {
-                            900: '#1c1917',
-                            800: '#292524',
-                            700: '#44403c',
-                        },
-                        accent: '#d97706',
-                    }
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
     <style>
         body.lockdown { overflow: hidden; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #1c1917; }
-        ::-webkit-scrollbar-thumb { background: #44403c; border-radius: 4px; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%;
+            background: #d97706; cursor: pointer; margin-top: -8px;
+            box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #44403c; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-stone-900 text-stone-300 font-sans min-h-screen flex flex-col">
+
+    <div id="lockdownOverlay" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-1000 px-8 text-center backdrop-blur-sm">
+        <div id="timerDisplay" class="text-7xl font-light text-stone-500 mb-12">20:00</div>
+        <div id="aphorismDisplay" class="max-w-md text-stone-400 text-xl italic mb-8"></div>
+    </div>
+
+    <main id="dashboard" class="flex-1 w-full max-w-2xl mx-auto px-6 pt-12 pb-12 flex flex-col transition-opacity duration-700">
+        <header class="mb-12 border-b border-stone-800 pb-6">
+            <h1 class="text-lg font-medium text-stone-200">Humaneed</h1>
+            <p class="text-xs text-stone-500">Raum für erlebte Selbstorganisation</p>
+        </header>
+
+        <section class="flex-1 space-y-8">
+            <div>
+                <label class="block text-sm font-medium text-stone-300 mb-2">Fundament <span class="text-stone-500 font-light">Körper & Schlaf</span></label>
+                <input type="range" id="sliderBio" min="0" max="100" value="50" class="w-full">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-stone-300 mb-2">Nervensystem <span class="text-stone-500 font-light">Stresstoleranz</span></label>
+                <input type="range" id="sliderVagal" min="0" max="100" value="50" class="w-full">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-stone-300 mb-2">Geist <span class="text-stone-500 font-light">Fokus & Klarheit</span></label>
+                <input type="range" id="sliderCog" min="0" max="100" value="50" class="w-full">
+            </div>
+            
+            <textarea id="journalInput" rows="3" class="w-full bg-stone-800/50 text-stone-300 border border-stone-700 rounded-lg p-4 text-sm focus:border-accent outline-none" placeholder="Gedanken festhalten. Autopiloten unterbrechen..."></textarea>
+            
+            <button id="btnIntervention" class="w-full bg-stone-800 py-5 rounded-xl border border-stone-700 hover:border-accent transition-all">
+                <span id="btnText">Zustand auswerten</span>
+            </button>
+        </section>
+
+        <section id="outputSection" class="mt-12 hidden opacity-0 transition-opacity duration-700">
+            <div class="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden mb-6">
+                <div id="coherenceBar" class="h-full bg-accent w-0 transition-all duration-1000"></div>
+            </div>
+            <div id="terminalTyping" class="bg-stone-800/30 p-6 rounded-xl border border-stone-800 font-mono text-sm text-stone-400"></div>
+            <button id="btnReset" class="mt-8 w-full py-4 border border-stone-700 rounded-xl text-stone-400 hover:text-stone-200">Physischen Stop einleiten</button>
+        </section>
+    </main>
+
+    <script>
+        const aphorisms = ["Stärke ist die Fähigkeit, unter Druck bewusst zu bleiben.", "Stille beseitigt Ablenkung.", "Bedeutung findet sich in der Aufmerksamkeit.", "Wenn du siehst, was in dir passiert, verändert sich das Verhalten."];
+        
+        // Backend-Anbindung
+        document.getElementById('btnIntervention').addEventListener('click', async () => {
+            const btn = document.getElementById('btnIntervention');
+            const output = document.getElementById('outputSection');
+            const terminal = document.getElementById('terminalTyping');
+            
+            output.classList.remove('hidden');
+            setTimeout(() => output.classList.remove('opacity-0'), 50);
+            terminal.innerHTML = "Analysiere Systemarchitektur...";
+
+            try {
+                const res = await fetch('/api/diagnose', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bio: parseInt(document.getElementById('sliderBio').value),
+                        vagal: parseInt(document.getElementById('sliderVagal').value),
+                        cog: parseInt(document.getElementById('sliderCog').value),
+                        text: document.getElementById('journalInput').value
+                    })
+                });
+                const data = await res.json();
+                document.getElementById('coherenceBar').style.width = data.kohärenz + '%';
+                terminal.innerHTML = `<div>${data.diagnose}</div><div class="mt-4 text-accent font-bold">${data.titel}</div><div>${data.aktion}</div>`;
+            } catch (e) {
+                terminal.innerHTML = "Verbindung zum Server fehlgeschlagen.";
+            }
+        });
+
+        // Lockdown Logik
+        document.getElementById('btnReset').addEventListener('click', () => {
+            document.getElementById('aphorismDisplay').textContent = aphorisms[Math.floor(Math.random() * aphorisms.length)];
+            document.body.classList.add('lockdown');
+            document.getElementById('lockdownOverlay').classList.remove('hidden');
+            setTimeout(() => document.getElementById('lockdownOverlay').classList.remove('opacity-0'), 50);
+            
+            let timeLeft = 1200;
+            const timer = setInterval(() => {
+                timeLeft--;
+                const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
+                const s = (timeLeft%60).toString().padStart(2,'0');
+                document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+                if(timeLeft <= 0) { clearInterval(timer); location.reload(); }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>        ::-webkit-scrollbar-thumb { background: #44403c; border-radius: 4px; }
         
         input[type=range] {
             -webkit-appearance: none;
