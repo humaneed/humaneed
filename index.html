@@ -2,103 +2,220 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HUMANEED // Diagnostik</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json">
+    <title>HUMANEED // Systemarchitektur</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { stone: { 900: '#1c1917', 800: '#292524', 700: '#44403c' }, accent: '#d97706' }
+                }
+            }
+        }
+    </script>
     <style>
-        .loading-dots:after { content: '.'; animation: dots 1.5s steps(5, end) infinite; }
-        @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60% { content: '...'; } 100% { content: ''; } }
         body.lockdown { overflow: hidden; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #1c1917; }
+        ::-webkit-scrollbar-thumb { background: #44403c; border-radius: 4px; }
+        
         input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #d97706; cursor: pointer; box-shadow: 0 0 10px rgba(217, 119, 6, 0.3); }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%;
+            background: #d97706; cursor: pointer; margin-top: -8px;
+            box-shadow: 0 0 12px rgba(217, 119, 6, 0.4); transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.15); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #44403c; border-radius: 2px; }
+        input[type=range]:focus { outline: none; }
     </style>
 </head>
-<body class="bg-stone-900 text-stone-300 font-sans min-h-screen">
+<body class="bg-stone-900 text-stone-300 font-sans min-h-screen flex flex-col selection:bg-accent selection:bg-opacity-30">
 
-    <div id="lockdownOverlay" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-1000 px-8 text-center backdrop-blur-sm">
-        <div id="timerDisplay" class="text-7xl font-light text-stone-500 mb-12">20:00</div>
-        <div id="aphorismDisplay" class="max-w-md text-stone-400 text-xl italic mb-8"></div>
+    <div id="lockdownOverlay" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-1000 px-8 text-center backdrop-blur-md">
+        <div id="timerDisplay" class="text-7xl font-light text-stone-500 tracking-tight mb-12">20:00</div>
+        <div id="aphorismDisplay" class="max-w-md text-stone-400 font-light text-xl leading-relaxed mb-8 italic"></div>
+        <div class="text-stone-500 tracking-widest text-[10px] uppercase font-medium">System wird heruntergefahren.</div>
     </div>
 
-    <main id="dashboard" class="max-w-2xl mx-auto px-6 py-12 transition-opacity duration-700">
-        <header class="mb-12 border-b border-stone-800 pb-6">
-            <h1 class="text-lg font-medium text-stone-200">Humaneed</h1>
-            <p class="text-xs text-stone-500">Raum für erlebte Selbstorganisation</p>
+    <main id="dashboard" class="flex-1 w-full max-w-2xl mx-auto px-6 pt-12 pb-16 flex flex-col transition-opacity duration-700">
+        
+        <header class="mb-12 border-b border-stone-800 pb-6 flex justify-between items-end">
+            <div>
+                <h1 class="text-lg font-medium text-stone-200 tracking-wide mb-1">Humaneed</h1>
+                <p class="text-xs text-stone-500 font-light">Architektur der erlebten Selbstorganisation</p>
+            </div>
+            <div class="text-xs text-stone-500 font-mono" id="sysTime">00:00</div>
         </header>
 
         <section class="space-y-8">
-            <div><label class="block text-sm mb-2">Körper & Schlaf</label><input type="range" id="sliderBio" value="50"></div>
-            <div><label class="block text-sm mb-2">Stresstoleranz</label><input type="range" id="sliderVagal" value="50"></div>
-            <div><label class="block text-sm mb-2">Fokus & Klarheit</label><input type="range" id="sliderCog" value="50"></div>
-            <textarea id="journalInput" rows="3" class="w-full bg-stone-800/50 p-4 rounded-lg border border-stone-700 outline-none focus:border-accent text-sm" placeholder="Gedanken festhalten..."></textarea>
-            <button id="btnIntervention" class="w-full bg-stone-800 py-4 rounded-xl border border-stone-700 hover:border-accent transition-all">Zustand auswerten</button>
+            <div class="bg-stone-800/40 p-6 rounded-xl border border-stone-800/80">
+                <div class="flex justify-between mb-4"><label class="text-sm font-medium">Tier 0: Biologie <span class="text-stone-500 font-light ml-1">Schlaf & Körper</span></label><span id="valBio" class="text-accent text-sm font-mono">50%</span></div>
+                <input type="range" id="sliderBio" min="0" max="100" value="50">
+            </div>
+
+            <div class="bg-stone-800/40 p-6 rounded-xl border border-stone-800/80">
+                <div class="flex justify-between mb-4"><label class="text-sm font-medium">Tier 1: Vagal-Zustand <span class="text-stone-500 font-light ml-1">Stresstoleranz</span></label><span id="valVagal" class="text-accent text-sm font-mono">50%</span></div>
+                <input type="range" id="sliderVagal" min="0" max="100" value="50">
+            </div>
+
+            <div class="bg-stone-800/40 p-6 rounded-xl border border-stone-800/80">
+                <div class="flex justify-between mb-4"><label class="text-sm font-medium">Tier 3: Kognition <span class="text-stone-500 font-light ml-1">Fokus & DMN</span></label><span id="valCog" class="text-accent text-sm font-mono">50%</span></div>
+                <input type="range" id="sliderCog" min="0" max="100" value="50">
+            </div>
+
+            <div class="mt-4">
+                <textarea id="journalInput" rows="3" class="w-full bg-stone-800/30 text-stone-300 border border-stone-800 rounded-xl p-5 font-light text-sm resize-none focus:border-accent/50 focus:bg-stone-900 focus:outline-none transition-all placeholder-stone-600" placeholder="Was blockiert die Struktur aktuell? (Optional)"></textarea>
+            </div>
+
+            <button id="btnIntervention" class="w-full bg-stone-800 hover:bg-stone-700 text-stone-200 text-sm font-medium tracking-wide py-5 rounded-xl border border-stone-700 hover:border-accent transition-all duration-300 shadow-lg shadow-black/20">
+                Systemzustand evaluieren
+            </button>
         </section>
 
         <section id="outputSection" class="mt-12 hidden opacity-0 transition-opacity duration-700">
-            <div class="w-full h-1.5 bg-stone-800 rounded-full mb-6 overflow-hidden">
-                <div id="coherenceBar" class="h-full bg-accent w-0 transition-all duration-1000"></div>
+            <div class="mb-6">
+                <div class="flex justify-between items-end mb-2"><span class="text-[10px] uppercase tracking-widest text-stone-500 font-medium">Systemkohärenz</span></div>
+                <div class="w-full h-1 bg-stone-800 rounded-full overflow-hidden">
+                    <div id="coherenceBar" class="h-full bg-accent w-0 transition-all duration-1000"></div>
+                </div>
             </div>
-            <div id="terminalTyping" class="bg-stone-800/30 p-6 rounded-xl border border-stone-800 font-mono text-sm text-stone-400"></div>
-            <button id="btnReset" class="mt-8 w-full py-4 border border-stone-700 rounded-xl hover:text-white">Physischen Stop einleiten</button>
+
+            <div class="bg-stone-800/30 border border-stone-800/80 p-6 rounded-xl font-mono text-sm leading-relaxed text-stone-300">
+                <div id="terminalTyping"></div>
+            </div>
+
+            <button id="btnReset" class="mt-8 w-full bg-transparent text-stone-400 hover:text-stone-200 text-sm font-medium py-4 border border-stone-800 hover:border-stone-600 rounded-xl transition-all">
+                [ Lockdown Einleiten ]
+            </button>
         </section>
     </main>
 
     <script>
-        const btn = document.getElementById('btnIntervention');
-        
-        btn.addEventListener('click', async () => {
-            const output = document.getElementById('outputSection');
-            const terminal = document.getElementById('terminalTyping');
-            
-            // UI State
-            btn.disabled = true;
-            btn.textContent = "Analysiere...";
-            output.classList.remove('hidden');
-            setTimeout(() => output.classList.remove('opacity-0'), 50);
-            
-            try {
-                const res = await fetch('/api/diagnose', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        bio: parseInt(document.getElementById('sliderBio').value),
-                        vagal: parseInt(document.getElementById('sliderVagal').value),
-                        cog: parseInt(document.getElementById('sliderCog').value),
-                        text: document.getElementById('journalInput').value
-                    })
-                });
-                
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                
-                document.getElementById('coherenceBar').style.width = data.kohärenz + '%';
-                terminal.innerHTML = `<div class="text-stone-200 mb-4">${data.diagnose}</div>
-                                      <div class="text-accent font-bold uppercase tracking-widest">${data.titel}</div>
-                                      <div class="mt-2">${data.aktion}</div>`;
-            } catch (e) {
-                terminal.innerHTML = "System ist offline. Bitte Verbindung zum Backend prüfen.";
-            } finally {
-                btn.disabled = false;
-                btn.textContent = "Zustand auswerten";
-            }
+        // System Clock
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('sysTime').textContent = now.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
+        }, 1000);
+
+        // Aphorismen für den Timer
+        const aphorisms = [
+            "Stärke ist die Fähigkeit, unter Druck bewusst zu bleiben.",
+            "Stille beseitigt Ablenkung. In der Stille werden ungelöste Gedanken sichtbar.",
+            "Bedeutung findet sich nicht in Ereignissen, sondern in deiner Aufmerksamkeit.",
+            "Wenn du wirklich siehst, was in dir passiert, verändert sich dein Verhalten automatisch.",
+            "Das Universum speichert die Daten, nicht den Sinn. Den Sinn musst du formen.",
+            "Was mich verletzt, sind nicht Ereignisse, sondern meine Urteile über sie.",
+            "Die Lücke zwischen Reiz und Reaktion ist deine einzige Freiheit."
+        ];
+
+        // Die vollständige 15-Setups-Matrix
+        const knowledgeBase = [
+            { id: "01", keywords: ["arbeit", "übergang", "haustür", "feierabend", "ankommen"], diagnose: "Schwellen-Trauma. Das Nervensystem hat den Moduswechsel nicht vollzogen.", titel: "Setup 01: Der Schwellen-Puffer", aktion: "Vor der nächsten Aktion: 5 Minuten physischer Stopp. Dreimal tief ausatmen. Gedanklich die vorherige Tür schließen." },
+            { id: "02", keywords: ["morgen", "aufwachen", "start", "früh", "kaffee"], diagnose: "Morgendliche Algorithmus-Kapern. Ventraler Vagus-Zustand gefährdet.", titel: "Setup 02: Die ersten 30 Minuten", aktion: "Keine Screens in den ersten 30 Minuten des Tages. Schütze die Integrität vor externen Reizen." },
+            { id: "03", keywords: ["gedanken", "kopf voll", "vergessen", "to-do", "viel zu tun"], diagnose: "Zeigarnik-Effekt aktiv. Das Arbeitsgedächtnis ist überlastet.", titel: "Setup 03: Der Gedanken-Parkplatz", aktion: "Schreibe sofort alle offenen To-Dos auf ein physisches Blatt Papier. Entlaste den Arbeitsspeicher." },
+            { id: "04", keywords: ["tabs", "zerstreut", "fokus", "multitasking", "browser"], diagnose: "Kognitive Fragmentierung. Jeder Tab ist ein mikroskopischer Stressor.", titel: "Setup 04: Die 1-Tab-Regel", aktion: "Schließe sofort alle Fenster. Ein einziger Tab für die aktuelle Aufgabe. 45 Minuten." },
+            { id: "05", keywords: ["wochenende", "pläne", "freizeit", "erholung", "sonntag"], diagnose: "DMN-Atrophie durch Dauerstruktur. Das System braucht leeren Raum zur Selbstreflexion.", titel: "Setup 05: Das leise Wochenende", aktion: "Blockiere einen halben Tag komplett. Keine Treffen, keine Struktur. Entscheide ausschließlich im Moment." },
+            { id: "06", keywords: ["entscheidung", "müde", "anziehen", "essen", "routine"], diagnose: "Decision Fatigue. Kognitive Kapazität wird für unwesentliche Parameter verschwendet.", titel: "Setup 06: Reduzierte Reibung", aktion: "Standardisiere unwichtige Entscheidungen sofort (z.B. Kleidung für morgen jetzt bereitlegen)." },
+            { id: "07", keywords: ["panik", "überfordert", "akut", "heiß", "puls", "angst"], diagnose: "Akute Sympathikus-Übersteuerung. Kausale Exklusion greift: Der Körper limitiert den Geist.", titel: "Setup 07: Physiologischer Reset", aktion: "Eiskaltes Wasser über die Handgelenke. Parasympathische Aktivierung erzwingen. 20 Minuten absolute Ruhe." },
+            { id: "08", keywords: ["handy", "scrollen", "social media", "sucht", "instagram"], diagnose: "Dopamin-Loop aktiv. Der Autopilot hat die Steuerung übernommen.", titel: "Setup 08: Der Graustufen-Modus", aktion: "Stelle dein Smartphone sofort auf Schwarz-Weiß. Zerstöre den algorithmischen Farbreiz." },
+            { id: "09", keywords: ["schlaf", "abend", "licht", "dunkel", "spät", "nacht"], diagnose: "Circadiane Desynchronisation. Vorbereitung für das glymphatische System ist blockiert.", titel: "Setup 09: Low-Light-Abend", aktion: "Schalte alle Deckenlampen aus. Nur noch warme, tiefe Lichtquellen. Melatonin-Synthese einleiten." },
+            { id: "10", keywords: ["unordnung", "chaos", "aufräumen", "zimmer", "müll"], diagnose: "Physische Entropie belastet kognitive Hintergrundprozesse.", titel: "Setup 10: Die +1-Regel", aktion: "Verlasse diesen Raum nicht, ohne einen Gegenstand mitzunehmen, der nicht hierhin gehört." },
+            { id: "11", keywords: ["augen", "starren", "bildschirm", "eng", "drinnen"], diagnose: "Räumliche Myopie. Amygdala meldet Gefangenschaft/Gefahr.", titel: "Setup 11: Der weite Blick", aktion: "Geh ans Fenster. Fixiere für 2 Minuten einen Punkt in extremer Ferne. Entspanne die Augenmuskulatur." },
+            { id: "12", keywords: ["karussell", "verloren", "flucht", "bodenlos"], diagnose: "Dissoziationstendenz. Das 'Ich' verliert die strukturelle Anbindung an das Trägersystem.", titel: "Setup 12: Der physische Anker", aktion: "Setz dich aufrecht hin. Spüre deine Füße auf dem Boden. Atme dreimal tief in den Bauch." },
+            { id: "13", keywords: ["anfrage", "bitte", "antworten", "email", "druck", "nachricht"], diagnose: "Sozialer Druck kapert rationale Entscheidungsfindung. Reaktionslücke fehlt.", titel: "Setup 13: Die 24-Stunden-Regel", aktion: "Antworte exakt so: 'Ich prüfe das und melde mich morgen.' Trenne den Reiz von der Entscheidung." },
+            { id: "14", keywords: ["prokrastination", "wichtig", "schwer", "aufschieben"], diagnose: "Vermeidungsreaktion durch mangelndes Momentum.", titel: "Setup 14: Der erste Sieg", aktion: "Ignoriere alle E-Mails. Erledige die eine härteste Aufgabe in den nächsten 60 Minuten. Erzeuge proaktive Kohärenz." },
+            { id: "15", keywords: ["fertig", "ende", "laptop", "schluss", "tisch"], diagnose: "Struktur muss stabilisiert werden. Gefahr des 'Bleedings' in den Ruhezustand.", titel: "Setup 15: Der klare Cut", aktion: "Klappe den Laptop physisch zu. Räume den Schreibtisch komplett leer. Das Ritual ersetzt den Arbeitsweg." }
+        ];
+
+        // UI Sliders
+        const sliders = { bio: document.getElementById('sliderBio'), vagal: document.getElementById('sliderVagal'), cog: document.getElementById('sliderCog') };
+        const vals = { bio: document.getElementById('valBio'), vagal: document.getElementById('valVagal'), cog: document.getElementById('valCog') };
+        Object.keys(sliders).forEach(key => {
+            sliders[key].addEventListener('input', (e) => { vals[key].textContent = e.target.value + '%'; });
         });
 
-        // Lockdown Logik bleibt stabil
+        // App Logik
+        document.getElementById('btnIntervention').addEventListener('click', async () => {
+            const btn = document.getElementById('btnIntervention');
+            const out = document.getElementById('outputSection');
+            const terminal = document.getElementById('terminalTyping');
+            
+            const b = parseInt(sliders.bio.value);
+            const v = parseInt(sliders.vagal.value);
+            const c = parseInt(sliders.cog.value);
+            const text = document.getElementById('journalInput').value.toLowerCase();
+
+            // Mathematische Systemkohärenz
+            const coherence = Math.round((b * 0.5) + (v * 0.3) + (c * 0.2));
+
+            btn.textContent = "Berechne Architektur...";
+            btn.style.pointerEvents = 'none';
+
+            // 1. Suche nach Keywords im Text
+            let match = knowledgeBase.find(item => item.keywords.some(kw => text.includes(kw)));
+
+            // 2. Fallback: Wenn kein Text oder kein Match, nimm den schwächsten Parameter
+            if (!match) {
+                if (b < 40 && b <= v && b <= c) {
+                    match = knowledgeBase.find(item => item.id === "07"); // Bio kritisch -> Physischer Reset
+                } else if (v < 40 && v <= b && v <= c) {
+                    match = knowledgeBase.find(item => item.id === "09"); // Vagal kritisch -> Low-Light (Beruhigung)
+                } else if (c < 40 && c <= b && c <= v) {
+                    match = knowledgeBase.find(item => item.id === "04"); // Cog kritisch -> 1-Tab-Regel
+                } else {
+                    match = knowledgeBase.find(item => item.id === "15"); // Alles über 40% -> Stabiler Cut
+                }
+            }
+
+            // UI Update Animation
+            out.classList.remove('hidden');
+            setTimeout(() => out.classList.remove('opacity-0'), 50);
+            
+            terminal.innerHTML = `<span class="text-stone-500 animate-pulse">Parse Epigenetik und Polyvagal-Hierarchie...</span>`;
+            document.getElementById('coherenceBar').style.width = '0%';
+
+            setTimeout(() => {
+                document.getElementById('coherenceBar').style.width = coherence + '%';
+                terminal.innerHTML = `
+                    <div class="mb-5 text-stone-300 font-light leading-relaxed">${match.diagnose}</div>
+                    <div class="mb-2 text-accent uppercase tracking-widest text-xs font-bold">${match.titel}</div>
+                    <div class="text-stone-400 font-light leading-relaxed">${match.aktion}</div>
+                `;
+                btn.textContent = "Systemzustand evaluieren";
+                btn.style.pointerEvents = 'auto';
+            }, 800);
+        });
+
+        // Timer Logik
+        let timerInt;
         document.getElementById('btnReset').addEventListener('click', () => {
-            const aphorisms = ["Stärke ist die Fähigkeit, unter Druck bewusst zu bleiben.", "Stille beseitigt Ablenkung.", "Bedeutung findet sich in der Aufmerksamkeit."];
             document.getElementById('aphorismDisplay').textContent = aphorisms[Math.floor(Math.random() * aphorisms.length)];
             document.body.classList.add('lockdown');
             document.getElementById('lockdownOverlay').classList.remove('hidden');
             setTimeout(() => document.getElementById('lockdownOverlay').classList.remove('opacity-0'), 50);
             
-            let timeLeft = 1200;
-            const timer = setInterval(() => {
+            let timeLeft = 20 * 60;
+            const timerDisp = document.getElementById('timerDisplay');
+            timerDisp.textContent = "20:00";
+
+            timerInt = setInterval(() => {
                 timeLeft--;
-                const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
-                const s = (timeLeft%60).toString().padStart(2,'0');
-                document.getElementById('timerDisplay').textContent = `${m}:${s}`;
-                if(timeLeft <= 0) { clearInterval(timer); location.reload(); }
+                const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                const s = (timeLeft % 60).toString().padStart(2, '0');
+                timerDisp.textContent = `${m}:${s}`;
+                if (timeLeft <= 0) { 
+                    clearInterval(timerInt); 
+                    location.reload(); 
+                }
             }, 1000);
         });
     </script>
