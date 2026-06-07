@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
-    <title>HUMANEED // Klarheit</title>
+    <title>HUMANEED // System</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -16,126 +16,168 @@
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-                    colors: { stone: { 900: '#1c1917', 800: '#292524', 700: '#44403c' }, accent: '#d97706' }
+                    colors: { 
+                        graphite: { 900: '#111111', 800: '#1a1a1a', 700: '#2a2a2a' }, 
+                        amber: '#eab308' 
+                    }
                 }
             }
         }
     </script>
     <style>
         body.lockdown { overflow: hidden; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #1c1917; }
-        ::-webkit-scrollbar-thumb { background: #44403c; border-radius: 4px; }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: #111111; }
+        ::-webkit-scrollbar-thumb { background: #2a2a2a; }
         
+        /* Taktile, industrielle Slider */
         input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; }
         input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%;
-            background: #d97706; cursor: pointer; margin-top: -8px;
-            box-shadow: 0 0 12px rgba(217, 119, 6, 0.4); transition: transform 0.1s;
+            -webkit-appearance: none; height: 22px; width: 12px; border-radius: 2px;
+            background: #eab308; cursor: pointer; margin-top: -9px;
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.2); transition: transform 0.1s;
         }
-        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.15); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #44403c; border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.1); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #2a2a2a; }
         input[type=range]:focus { outline: none; }
+        
+        .tab-active { color: #eab308; border-bottom: 1px solid #eab308; }
+        .tab-inactive { color: #555; border-bottom: 1px solid transparent; }
     </style>
 </head>
-<body class="bg-stone-900 text-stone-300 font-sans min-h-screen flex flex-col selection:bg-accent selection:bg-opacity-30">
+<body class="bg-graphite-900 text-gray-300 font-sans min-h-screen flex flex-col selection:bg-amber selection:text-graphite-900">
 
-    <div id="lockdownOverlay" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-1000 px-8 text-center backdrop-blur-md">
-        <div id="timerDisplay" class="text-7xl font-light text-stone-500 tracking-tight mb-12">20:00</div>
-        <div id="aphorismDisplay" class="max-w-md text-stone-400 font-light text-xl leading-relaxed mb-8 italic"></div>
-        <div class="text-stone-500 tracking-widest text-[10px] uppercase font-medium">Reizreduzierung aktiv. Atme.</div>
+    <nav class="fixed bottom-0 w-full bg-graphite-900/90 backdrop-blur-md border-t border-graphite-800 z-40 pb-safe">
+        <div class="max-w-2xl mx-auto flex justify-around">
+            <button onclick="switchTab('diagnostik')" id="tab-diagnostik" class="flex-1 py-4 text-xs tracking-widest uppercase font-medium tab-active transition-all">Terminal</button>
+            <button onclick="switchTab('manifest')" id="tab-manifest" class="flex-1 py-4 text-xs tracking-widest uppercase font-medium tab-inactive transition-all">Archiv</button>
+        </div>
+    </nav>
+
+    <div id="lockdownOverlay" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-1000 px-8 text-center backdrop-blur-lg">
+        <div id="timerDisplay" class="text-7xl font-mono text-gray-600 tracking-tighter mb-12">20:00</div>
+        <div id="aphorismDisplay" class="max-w-md text-gray-300 font-light text-xl leading-relaxed mb-8"></div>
+        <div class="text-amber tracking-widest text-[10px] uppercase font-mono">Die Illusion löst sich in der Stille auf.</div>
     </div>
 
-    <main id="dashboard" class="flex-1 w-full max-w-2xl mx-auto px-6 pt-12 pb-16 flex flex-col transition-opacity duration-700">
-        
-        <header class="mb-12 border-b border-stone-800 pb-6 flex justify-between items-end">
+    <main id="view-diagnostik" class="flex-1 w-full max-w-2xl mx-auto px-6 pt-12 pb-24 flex flex-col transition-opacity duration-500">
+        <header class="mb-10 border-b border-graphite-800 pb-6 flex justify-between items-end">
             <div>
-                <h1 class="text-lg font-medium text-stone-200 tracking-wide mb-1">Humaneed</h1>
-                <p class="text-xs text-stone-500 font-light">Dein Kompass für Klarheit</p>
+                <h1 class="text-xl font-medium text-gray-100 tracking-wide mb-1">Humaneed</h1>
+                <p class="text-xs text-gray-500 font-mono uppercase tracking-wider">Erlebte Selbstorganisation</p>
             </div>
-            <div class="text-xs text-stone-500 font-mono" id="sysTime">00:00</div>
+            <div class="text-xs text-amber font-mono" id="sysTime">00:00</div>
         </header>
 
         <section class="space-y-8">
-            <div class="bg-stone-800/40 p-6 rounded-xl border border-stone-800/80">
-                <div class="flex justify-between mb-4"><label class="text-sm font-medium">Körper & Energie <span class="text-stone-500 font-light ml-1">(Schlaf, Akku)</span></label><span id="valBio" class="text-accent text-sm font-mono">50%</span></div>
+            <div class="bg-graphite-800/20 p-6 rounded-sm border-l-2 border-graphite-700">
+                <div class="flex justify-between mb-4"><label class="text-xs uppercase tracking-widest font-medium text-gray-400">T-0: Biologische Basis</label><span id="valBio" class="text-amber text-xs font-mono">50%</span></div>
                 <input type="range" id="sliderBio" min="0" max="100" value="50">
-                <div class="flex justify-between text-[10px] text-stone-500 uppercase mt-3"><span>Erschöpft</span><span>Kraftvoll</span></div>
             </div>
 
-            <div class="bg-stone-800/40 p-6 rounded-xl border border-stone-800/80">
-                <div class="flex justify-between mb-4"><label class="text-sm font-medium">Nervensystem <span class="text-stone-500 font-light ml-1">(Stresslevel)</span></label><span id="valVagal" class="text-accent text-sm font-mono">50%</span></div>
+            <div class="bg-graphite-800/20 p-6 rounded-sm border-l-2 border-graphite-700">
+                <div class="flex justify-between mb-4"><label class="text-xs uppercase tracking-widest font-medium text-gray-400">T-1: Vagal-Zustand</label><span id="valVagal" class="text-amber text-xs font-mono">50%</span></div>
                 <input type="range" id="sliderVagal" min="0" max="100" value="50">
-                <div class="flex justify-between text-[10px] text-stone-500 uppercase mt-3"><span>Gestreßt / Unruhig</span><span>Sicher / Entspannt</span></div>
             </div>
 
-            <div class="bg-stone-800/40 p-6 rounded-xl border border-stone-800/80">
-                <div class="flex justify-between mb-4"><label class="text-sm font-medium">Geistiger Fokus <span class="text-stone-500 font-light ml-1">(Klarheit)</span></label><span id="valCog" class="text-accent text-sm font-mono">50%</span></div>
+            <div class="bg-graphite-800/20 p-6 rounded-sm border-l-2 border-graphite-700">
+                <div class="flex justify-between mb-4"><label class="text-xs uppercase tracking-widest font-medium text-gray-400">T-3: Kognitive Last</label><span id="valCog" class="text-amber text-xs font-mono">50%</span></div>
                 <input type="range" id="sliderCog" min="0" max="100" value="50">
-                <div class="flex justify-between text-[10px] text-stone-500 uppercase mt-3"><span>Zerstreut / Überladen</span><span>Klarer Fokus</span></div>
             </div>
 
             <div class="mt-4">
-                <textarea id="journalInput" rows="3" class="w-full bg-stone-800/30 text-stone-300 border border-stone-800 rounded-xl p-5 font-light text-sm resize-none focus:border-accent/50 focus:bg-stone-900 focus:outline-none transition-all placeholder-stone-600" placeholder="Was beschäftigt dich gerade? (Lass die Gedanken kurz los...)"></textarea>
+                <textarea id="journalInput" rows="3" class="w-full bg-graphite-800/40 text-gray-200 border border-graphite-700 p-5 font-light text-sm resize-none focus:border-amber focus:outline-none transition-all placeholder-gray-600 rounded-sm" placeholder="Gedankenstrom erfassen. Den Autopiloten unterbrechen..."></textarea>
             </div>
 
-            <button id="btnIntervention" class="w-full bg-stone-800 hover:bg-stone-700 text-stone-200 text-sm font-medium tracking-wide py-5 rounded-xl border border-stone-700 hover:border-accent transition-all duration-300 shadow-lg shadow-black/20">
-                Was brauche ich jetzt?
+            <button id="btnIntervention" class="w-full bg-gray-100 hover:bg-white text-graphite-900 text-xs font-bold uppercase tracking-[0.2em] py-5 rounded-sm transition-all duration-300">
+                [ Free Won't ] Aktivieren
             </button>
         </section>
 
         <section id="outputSection" class="mt-12 hidden opacity-0 transition-opacity duration-700">
-            <div class="bg-stone-800/30 border border-stone-800/80 p-6 rounded-xl text-sm leading-relaxed text-stone-300 shadow-inner">
+            <div class="bg-graphite-800/40 border border-graphite-700 p-6 rounded-sm shadow-inner">
                 <div id="terminalTyping"></div>
             </div>
-
-            <button id="btnReset" class="mt-8 w-full bg-transparent text-stone-400 hover:text-stone-200 text-sm font-medium py-4 border border-stone-800 hover:border-stone-600 rounded-xl transition-all">
-                Pause starten (20 Min)
+            <button id="btnReset" class="mt-6 w-full bg-transparent text-gray-500 hover:text-gray-300 text-xs tracking-widest uppercase font-mono py-4 border border-graphite-800 rounded-sm transition-all">
+                System Reset (20 Min)
             </button>
         </section>
     </main>
 
+    <main id="view-manifest" class="hidden flex-1 w-full max-w-2xl mx-auto px-6 pt-12 pb-24 flex flex-col transition-opacity duration-500">
+        <header class="mb-10 border-b border-graphite-800 pb-6">
+            <h1 class="text-xl font-medium text-gray-100 tracking-wide mb-1">Das Manifest</h1>
+            <p class="text-xs text-gray-500 font-mono uppercase tracking-wider">Philosophie & Struktur</p>
+        </header>
+
+        <article class="prose prose-invert prose-stone max-w-none font-light leading-relaxed text-sm text-gray-400 space-y-12">
+            
+            <section>
+                <h2 class="text-amber text-xs uppercase tracking-widest font-bold mb-4">I. Bewusstsein, einfach erklärt</h2>
+                <p>Stell dir vor, du sitzt irgendwo ganz ruhig. Vielleicht in deinem Zimmer. Vielleicht draußen. Und plötzlich merkst du: Du bist da. Das klingt erstmal banal. Aber wenn du genauer hinschaust, ist es eigentlich ziemlich verrückt.</p>
+                <p>Du kannst an allem zweifeln. Ob die Welt wirklich so ist, wie sie aussieht. Ob andere Menschen dich wirklich verstehen. Ob deine Erinnerungen stimmen. Aber eine Sache kannst du nicht anzweifeln: <strong>Dass du gerade etwas erlebst.</strong> Selbst wenn alles eine Illusion wäre — die Illusion wird ja erlebt. Und dafür muss es dich geben.</p>
+            </section>
+
+            <section>
+                <h2 class="text-amber text-xs uppercase tracking-widest font-bold mb-4">II. Das Libet-Experiment & Free Won't</h2>
+                <p>Wer entscheidet eigentlich — du oder dein Gehirn? Ein Wissenschaftler bat Menschen: „Heb einfach irgendwann deine Hand.“ Währenddessen hat er ihr Gehirn gemessen. Das Gehirn hat schon vorher angefangen, die Bewegung vorzubereiten. Bevor die Person bewusst entschieden hat.</p>
+                <p>Dein Gehirn ist wie ein Auto, das ständig läuft. Es produziert dauernd Impulse. Aber du bist nicht komplett machtlos. Du bist vielleicht nicht derjenige, der alles startet. Aber du bist derjenige, der stoppen kann. <strong>Genau da passiert Freiheit. Nicht im Start — sondern im Nicht-Mitgehen.</strong></p>
+            </section>
+
+            <section>
+                <h2 class="text-amber text-xs uppercase tracking-widest font-bold mb-4">III. Die Polyvagal-Theorie</h2>
+                <p>Das autonome Nervensystem hat drei hierarchisch organisierte Systeme. Sicherheit kommt zuerst. Kein Lernen, keine Kreativität, keine tiefe Verbindung ist möglich, solange das Nervensystem in Kampf/Flucht (Sympathikus) oder Erstarrung (Dorsaler Vagus) ist. Die Pflege des Systems ist keine Selbstverwöhnung, sondern ethische Notwendigkeit.</p>
+            </section>
+
+            <section>
+                <h2 class="text-amber text-xs uppercase tracking-widest font-bold mb-4">IV. Epigenetik & Handlung</h2>
+                <p>Erfahrungen können buchstäblich Gene an- und ausschalten. Chronischer Stress methyliert Gene, die für Stressresistenz zuständig sind. Die Konsequenz: Was wir tun, fühlen und denken, formt nicht nur unser Erlebnis, sondern greift tief in die biologische Struktur ein. Echte Veränderung passiert nicht durch Druck. Sie passiert durch Verstehen und Wiederholung in der Struktur.</p>
+            </section>
+
+        </article>
+    </main>
+
     <script>
-        // System Clock
+        // Tab Logic
+        function switchTab(tab) {
+            document.getElementById('view-diagnostik').classList.add('hidden');
+            document.getElementById('view-manifest').classList.add('hidden');
+            document.getElementById('tab-diagnostik').className = 'flex-1 py-4 text-xs tracking-widest uppercase font-medium tab-inactive transition-all';
+            document.getElementById('tab-manifest').className = 'flex-1 py-4 text-xs tracking-widest uppercase font-medium tab-inactive transition-all';
+            
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).className = 'flex-1 py-4 text-xs tracking-widest uppercase font-medium tab-active transition-all';
+        }
+
         setInterval(() => {
-            const now = new Date();
-            document.getElementById('sysTime').textContent = now.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('sysTime').textContent = new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
         }, 1000);
 
-        // Aphorismen für jedermann verständlich
         const aphorisms = [
-            "Stärke bedeutet, auch unter Druck kurz innezuhalten.",
-            "Stille beseitigt Ablenkung. In der Ruhe siehst du wieder klar.",
-            "Dein Leben bekommt Bedeutung durch das, worauf du deine Aufmerksamkeit richtest.",
-            "Sobald du ehrlich hinschaust, verändert sich etwas von ganz allein.",
-            "Du bist nicht der Maschinenraum, aber du entscheidest, ob du mitgehst."
+            "Du kannst an allem zweifeln. Aber nicht daran, dass du gerade erlebst.",
+            "Die echte Freiheit passiert nicht im Start der Handlung, sondern im Nicht-Mitgehen.",
+            "Veränderung passiert nicht durch Druck. Sie passiert durch klares Sehen.",
+            "Bedeutung findet sich nicht im Ereignis, sondern in deiner Aufmerksamkeit.",
+            "Dein Gehirn war schneller als dein Gefühl von 'Ich entscheide'. Nutze die Lücke."
         ];
 
-        // Die übersetzte 15-Setups-Matrix (Für jedermann)
+        // Die erweiterte Matrix inkl. Philosophischer Begründung
         const knowledgeBase = [
-            { id: "01", keywords: ["arbeit", "feierabend", "nach hause", "abschalten"], diagnose: "Dein Kopf ist noch im Arbeitsmodus. Der Übergang fehlt.", titel: "Der Schwellen-Puffer", aktion: "Nimm dir 5 Minuten vor der Tür. Atme tief aus. Schließe gedanklich ab, bevor du den nächsten Raum betrittst." },
-            { id: "02", keywords: ["morgen", "aufstehen", "start", "früh"], diagnose: "Lass dich morgens nicht sofort fremdsteuern.", titel: "Die ersten 30 Minuten", aktion: "Kein Bildschirm in der ersten halben Stunde des Tages. Gehöre erst dir selbst, bevor du der Welt antwortest." },
-            { id: "03", keywords: ["viel zu tun", "kopf voll", "vergessen", "chaos", "to-do"], diagnose: "Dein Arbeitsspeicher ist überlastet. Das Gehirn versucht krampfhaft, nichts zu vergessen.", titel: "Der Gedanken-Parkplatz", aktion: "Nimm dir sofort einen Stift. Schreib alles auf, was offen ist. Hol es aus dem Kopf aufs Papier." },
-            { id: "04", keywords: ["tabs", "zerstreut", "multitasking", "konzentration"], diagnose: "Reizüberflutung. Zu viele offene Fenster zersplittern deine Energie.", titel: "Die 1-Tab-Regel", aktion: "Schließe alle Programme bis auf eines. Arbeite 45 Minuten nur an dieser einen Sache." },
-            { id: "06", keywords: ["entscheidung", "müde", "erschöpft", "routine"], diagnose: "Entscheidungsmüdigkeit. Du verschwendest Kraft für kleine, unwichtige Dinge.", titel: "Weniger ist mehr", aktion: "Triff kleine Entscheidungen für morgen schon heute (z.B. Kleidung rauslegen). Schone deinen Fokus." },
-            { id: "07", keywords: ["panik", "überfordert", "akut", "stress", "angst", "kaputt", "genervt"], diagnose: "Dein Körper ist im Alarmzustand (Kampf/Flucht). Logisches Denken ist gerade blockiert.", titel: "Die Notbremse", aktion: "Lass eiskaltes Wasser über deine Handgelenke laufen. Das signalisiert dem Körper sofort: Gefahr vorüber." },
-            { id: "08", keywords: ["handy", "scrollen", "social media", "instagram", "tiktok", "ablenkung"], diagnose: "Der Autopilot hat übernommen. Du suchst schnelle Bestätigung im Außen.", titel: "Der Graustufen-Modus", aktion: "Stelle dein Handy sofort auf Schwarz-Weiß. Zerstöre den bunten Reiz und leg es außer Sichtweite." },
-            { id: "09", keywords: ["schlaf", "abend", "licht", "dunkel", "nacht", "schlecht geschlafen"], diagnose: "Deine innere Uhr ist durcheinander. Dein Körper weiß nicht, dass es Zeit für Ruhe ist.", titel: "Low-Light-Abend", aktion: "Schalte alle hellen Deckenlampen aus. Nutze nur noch sanftes Licht. Bereite dich auf echte Erholung vor." },
-            { id: "11", keywords: ["augen", "bildschirm", "drinnen", "stundenlang", "kopfschmerzen"], diagnose: "Dein Blickfeld ist zu eng. Das signalisiert dem Gehirn unbewusst Stress.", titel: "Der weite Blick", aktion: "Geh ans Fenster. Schau für 2 Minuten entspannt auf den am weitesten entfernten Punkt draußen." },
-            { id: "12", keywords: ["verloren", "gedankenkarussell", "grübeln"], diagnose: "Du bist in deinen Gedanken gefangen und verlierst den Kontakt zur Realität.", titel: "Der physische Anker", aktion: "Setz dich aufrecht hin. Spüre ganz bewusst deine Füße auf dem Boden. Atme dreimal tief in den Bauch." },
-            { id: "13", keywords: ["druck", "antworten", "email", "nachricht", "schnell", "chef"], diagnose: "Der Druck von außen zwingt dich zu schnellen Reaktionen.", titel: "Die 24-Stunden-Regel", aktion: "Lass dich nicht hetzen. Antworte nur: 'Ich prüfe das und melde mich morgen.' Gewinne deine Kontrolle zurück." },
-            { id: "15", keywords: ["fertig", "ende", "laptop", "schluss"], diagnose: "Die Arbeit sickert in deine Freizeit. Es fehlt ein klarer Schnitt.", titel: "Der klare Cut", aktion: "Klappe den Laptop physisch zu. Räume den Tisch komplett auf. Lass die Arbeit am Schreibtisch zurück." }
+            { id: "01", keywords: ["arbeit", "übergang", "abschalten"], d: "Schwellen-Trauma. Keine Trennung zwischen Sphären.", t: "Setup 01: Der Schwellen-Puffer", a: "Vor der nächsten Aktion: 5 Minuten physischer Stopp. Dreimal tief ausatmen.", p: "Phänomenologie (Heidegger): Das Dasein braucht klare Raumwechsel, um das Ich-Narrativ neu zu justieren." },
+            { id: "04", keywords: ["tabs", "zerstreut", "fokus", "multitasking"], d: "Kognitive Fragmentierung.", t: "Setup 04: Die 1-Tab-Regel", a: "Schließe sofort alle Fenster bis auf eines. 45 Minuten Deep Work.", p: "Global Workspace Theory: Das Bewusstsein hat Kapazitätsgrenzen. Jeder Tab zersplittert das 'Rampenlicht'." },
+            { id: "07", keywords: ["panik", "überfordert", "stress", "angst"], d: "Akute Sympathikus-Übersteuerung.", t: "Setup 07: Physiologischer Reset", a: "Eiskaltes Wasser über die Handgelenke. Parasympathikus erzwingen.", p: "Polyvagal-Theorie (Porges): Logisches Denken ist blockiert, wenn das Nervensystem um das nackte Überleben kämpft." },
+            { id: "08", keywords: ["handy", "scrollen", "social media", "instagram"], d: "Dopamin-Loop aktiv. Der Autopilot steuert.", t: "Setup 08: Der Graustufen-Modus", a: "Handy sofort auf Schwarz-Weiß stellen.", p: "Das Libet-Experiment: Das Gehirn hat längst den Impuls zum Scrollen gesendet. Nutze das 'Free Won't', um ihn nicht auszuführen." },
+            { id: "09", keywords: ["schlaf", "abend", "licht", "müde"], d: "Circadiane Desynchronisation.", t: "Setup 09: Low-Light-Abend", a: "Nur noch warme Lichtquellen. Melatonin-Synthese einleiten.", p: "Epigenetik: Fehlender Schlaf blockiert das glymphatische System und verhindert die Neurogenese (BDNF) für den nächsten Tag." },
+            { id: "12", keywords: ["verloren", "karussell", "vergleich", "bestätigung"], d: "Instabiles Identitätsgefühl. Suche nach Halt im Außen.", t: "Setup 12: Der physische Anker", a: "Füße auf den Boden. Körper spüren. Atmen.", p: "Merleau-Ponty: Du denkst nicht mit dem Körper wie ein Pilot, du BIST dein Körper. Erdung holt das Bewusstsein in die Realität zurück." },
+            { id: "15", keywords: ["fertig", "ende", "laptop", "schluss"], d: "System stabil, aber struktureller Schutz nötig.", t: "Setup 15: Der klare Cut", a: "Laptop zuklappen. Schreibtisch räumen.", p: "Daoismus (Wu Wei): Handeln in Übereinstimmung mit der Struktur. Das physische Ritual schützt die psychische Integrität." }
         ];
 
-        // UI Sliders
         const sliders = { bio: document.getElementById('sliderBio'), vagal: document.getElementById('sliderVagal'), cog: document.getElementById('sliderCog') };
-        const vals = { bio: document.getElementById('valBio'), vagal: document.getElementById('valVagal'), cog: document.getElementById('valCog') };
         Object.keys(sliders).forEach(key => {
-            sliders[key].addEventListener('input', (e) => { vals[key].textContent = e.target.value + '%'; });
+            sliders[key].addEventListener('input', (e) => { document.getElementById('val' + key.charAt(0).toUpperCase() + key.slice(1)).textContent = e.target.value + '%'; });
         });
 
-        // App Logik
-        document.getElementById('btnIntervention').addEventListener('click', async () => {
+        document.getElementById('btnIntervention').addEventListener('click', () => {
             const btn = document.getElementById('btnIntervention');
             const out = document.getElementById('outputSection');
             const terminal = document.getElementById('terminalTyping');
@@ -145,44 +187,38 @@
             const c = parseInt(sliders.cog.value);
             const text = document.getElementById('journalInput').value.toLowerCase();
 
-            btn.textContent = "Gedanken werden sortiert...";
+            btn.textContent = "Analysiere Kausalität...";
             btn.style.pointerEvents = 'none';
 
-            // 1. Suche nach Keywords im Text
             let match = knowledgeBase.find(item => item.keywords.some(kw => text.includes(kw)));
 
-            // 2. Fallback: Logische Diagnose anhand der Regler
             if (!match) {
-                if (b < 40 && b <= v && b <= c) {
-                    match = knowledgeBase.find(item => item.id === "07"); // Bio schwach
-                } else if (v < 40 && v <= b && v <= c) {
-                    match = knowledgeBase.find(item => item.id === "12"); // Stress hoch -> Anker
-                } else if (c < 40 && c <= b && c <= v) {
-                    match = knowledgeBase.find(item => item.id === "04"); // Fokus weg -> 1-Tab
-                } else {
-                    match = knowledgeBase.find(item => item.id === "15"); // Alles okay -> Klarer Cut
-                }
+                if (b < 40 && b <= v && b <= c) match = knowledgeBase.find(item => item.id === "07");
+                else if (v < 40 && v <= b && v <= c) match = knowledgeBase.find(item => item.id === "12");
+                else if (c < 40 && c <= b && c <= v) match = knowledgeBase.find(item => item.id === "04");
+                else match = knowledgeBase.find(item => item.id === "15");
             }
 
-            // UI Update
             out.classList.remove('hidden');
             setTimeout(() => out.classList.remove('opacity-0'), 50);
             
-            terminal.innerHTML = `<span class="text-stone-500 animate-pulse">Lade Empfehlung...</span>`;
+            terminal.innerHTML = `<span class="text-gray-500 font-mono animate-pulse">Lade Philosophie-Kern...</span>`;
 
             setTimeout(() => {
                 terminal.innerHTML = `
-                    <div class="mb-4 text-stone-200 font-medium text-base">${match.diagnose}</div>
-                    <div class="mb-1 text-accent uppercase tracking-widest text-xs font-bold">${match.titel}</div>
-                    <div class="text-stone-400 font-light">${match.aktion}</div>
+                    <div class="mb-4 text-gray-100 font-medium text-sm leading-relaxed">${match.d}</div>
+                    <div class="mb-1 text-amber uppercase tracking-widest text-xs font-bold">${match.t}</div>
+                    <div class="text-gray-300 font-light text-sm mb-6">${match.a}</div>
+                    <div class="border-t border-graphite-700 pt-4 mt-4">
+                        <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1 font-mono">Der Mechanismus</div>
+                        <div class="text-gray-400 font-light text-xs italic leading-relaxed border-l-2 border-amber pl-3">${match.p}</div>
+                    </div>
                 `;
-                btn.textContent = "Was brauche ich jetzt?";
+                btn.textContent = "[ Free Won't ] Aktivieren";
                 btn.style.pointerEvents = 'auto';
             }, 600);
         });
 
-        // Timer Logik
-        let timerInt;
         document.getElementById('btnReset').addEventListener('click', () => {
             document.getElementById('aphorismDisplay').textContent = aphorisms[Math.floor(Math.random() * aphorisms.length)];
             document.body.classList.add('lockdown');
@@ -191,17 +227,13 @@
             
             let timeLeft = 20 * 60;
             const timerDisp = document.getElementById('timerDisplay');
-            timerDisp.textContent = "20:00";
-
-            timerInt = setInterval(() => {
+            
+            const timerInt = setInterval(() => {
                 timeLeft--;
                 const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
                 const s = (timeLeft % 60).toString().padStart(2, '0');
                 timerDisp.textContent = `${m}:${s}`;
-                if (timeLeft <= 0) { 
-                    clearInterval(timerInt); 
-                    location.reload(); 
-                }
+                if (timeLeft <= 0) { clearInterval(timerInt); location.reload(); }
             }, 1000);
         });
     </script>
