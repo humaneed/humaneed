@@ -1,241 +1,1433 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="manifest" href="manifest.json">
-    <title>HUMANEED // System</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-                    colors: { 
-                        graphite: { 900: '#111111', 800: '#1a1a1a', 700: '#2a2a2a' }, 
-                        amber: '#eab308' 
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body.lockdown { overflow: hidden; }
-        ::-webkit-scrollbar { width: 3px; }
-        ::-webkit-scrollbar-track { background: #111111; }
-        ::-webkit-scrollbar-thumb { background: #2a2a2a; }
-        
-        /* Taktile, industrielle Slider */
-        input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 22px; width: 12px; border-radius: 2px;
-            background: #eab308; cursor: pointer; margin-top: -9px;
-            box-shadow: 0 0 15px rgba(234, 179, 8, 0.2); transition: transform 0.1s;
-        }
-        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.1); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #2a2a2a; }
-        input[type=range]:focus { outline: none; }
-        
-        .tab-active { color: #eab308; border-bottom: 1px solid #eab308; }
-        .tab-inactive { color: #555; border-bottom: 1px solid transparent; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>HUMANEED</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   HUMANEED — Final
+   Design: dark, tactile, precise. No clutter.
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+:root {
+  --bg:        #0a0c0a;
+  --surface:   #111311;
+  --raised:    #181b17;
+  --border:    rgba(255,255,255,0.07);
+  --border-hi: rgba(255,255,255,0.13);
+
+  --mint:   #4ECCA3;
+  --amber:  #F5A623;
+  --coral:  #FF6B7A;
+  --sky:    #60A5FA;
+  --violet: #A78BFA;
+  --red:    #FF6B7A;
+
+  --t1: #dde8e0;
+  --t2: #8aac96;
+  --t3: #4a6655;
+
+  --r: 10px;
+  --ease: cubic-bezier(0.4,0,0.2,1);
+}
+
+body {
+  background: var(--bg);
+  color: var(--t1);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  padding-bottom: calc(68px + env(safe-area-inset-bottom));
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+
+/* ── Container ── */
+.app { max-width: 480px; margin: 0 auto; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   NAV
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(10,12,10,0.92);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-inner { max-width: 480px; margin: 0 auto; display: flex; }
+.nav-btn {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  padding: 10px 0 12px;
+  background: none; border: none; cursor: pointer;
+  color: var(--t3);
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: 0.13em; text-transform: uppercase;
+  transition: color 0.2s;
+  position: relative;
+}
+.nav-btn svg { width: 20px; height: 20px; stroke-width: 1.5; }
+.nav-btn.active { color: var(--mint); }
+.nav-btn.active::before {
+  content: '';
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 24px; height: 1.5px; background: var(--mint); border-radius: 0 0 2px 2px;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   VIEWS
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.view { display: none; padding: 20px 16px 16px; }
+.view.active { display: block; animation: fadeUp 0.28s var(--ease); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   HOME VIEW
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Header strip */
+.home-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--mint);
+}
+.header-meta { display: flex; align-items: center; gap: 10px; }
+.clock {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; color: var(--t3);
+}
+.streak-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(245,166,35,0.1);
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; color: var(--amber);
+}
+
+/* Greeting */
+.greeting {
+  margin-bottom: 24px;
+}
+.greeting-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--t3); margin-bottom: 4px;
+}
+.greeting-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+  color: var(--t1); line-height: 1.2;
+}
+
+/* XP bar */
+.xp-wrap { margin-bottom: 24px; }
+.xp-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.xp-level {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--mint);
+}
+.xp-remaining { font-size: 11px; color: var(--t3); }
+.xp-track {
+  height: 2px; background: var(--raised); border-radius: 2px; overflow: hidden;
+}
+.xp-fill {
+  height: 100%; background: var(--mint); border-radius: 2px;
+  transition: width 0.9s var(--ease);
+}
+
+/* ── One Action Card ── */
+.action-card {
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--r);
+  padding: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.action-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--dim-color, var(--mint)), transparent);
+  opacity: 0.6;
+}
+.action-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.action-dim-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--dim-color, var(--mint));
+  background: rgba(78,204,163,0.07);
+  border: 1px solid rgba(78,204,163,0.15);
+  border-radius: 4px; padding: 3px 7px;
+}
+.action-xp {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; color: var(--amber);
+}
+.action-emoji { font-size: 28px; margin-bottom: 8px; display: block; }
+.action-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+  margin-bottom: 6px; color: var(--t1);
+}
+.action-desc { font-size: 13px; line-height: 1.65; color: var(--t2); margin-bottom: 14px; }
+.action-steps { margin-bottom: 14px; }
+.action-step {
+  font-size: 12px; color: var(--t2); line-height: 1.7;
+  padding-left: 12px; position: relative;
+}
+.action-step::before {
+  content: '→'; position: absolute; left: 0;
+  color: var(--dim-color, var(--mint));
+}
+.action-time {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.1em;
+  color: var(--t3); margin-bottom: 16px;
+}
+.action-time::before { content: ''; width: 5px; height: 5px; background: var(--dim-color, var(--mint)); border-radius: 50%; opacity: 0.6; }
+.btn-complete {
+  width: 100%;
+  background: var(--dim-color, var(--mint));
+  color: #080c08;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+  border: none; border-radius: 6px;
+  padding: 15px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn-complete:active { transform: scale(0.98); opacity: 0.9; }
+
+/* Why expand */
+.why-toggle {
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; color: var(--t3);
+  font-style: italic; padding: 8px 0 0;
+  display: block; transition: color 0.15s;
+}
+.why-toggle:hover { color: var(--t2); }
+.why-text {
+  font-size: 12px; color: var(--t3); font-style: italic;
+  line-height: 1.65; padding-top: 8px; border-top: 1px solid var(--border);
+  margin-top: 8px; display: none;
+}
+.why-text.open { display: block; }
+
+/* ── Dimension Grid ── */
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--t3); margin-bottom: 12px; margin-top: 24px;
+}
+.dim-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.dim-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+.dim-card::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--dim-c, var(--mint));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.dim-card:hover { border-color: var(--border-hi); }
+.dim-card:hover::after { opacity: 1; }
+.dim-card:active { transform: scale(0.97); }
+.dim-card.low-score { border-color: rgba(245,166,35,0.3); }
+.dim-card.critical-score { border-color: rgba(255,107,122,0.4); }
+.dim-emoji { font-size: 18px; margin-bottom: 5px; display: block; }
+.dim-name { font-size: 11px; color: var(--t2); margin-bottom: 8px; line-height: 1.3; }
+.dim-bar { height: 2px; background: var(--raised); border-radius: 2px; overflow: hidden; }
+.dim-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s var(--ease); }
+.dim-score {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; color: var(--t3);
+  margin-top: 5px;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   EXPLORE VIEW
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.view-header { margin-bottom: 20px; }
+.view-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 2px;
+}
+.view-sub { font-size: 12px; color: var(--t3); }
+
+.dim-tabs {
+  display: flex; gap: 6px; margin-bottom: 16px;
+  overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+}
+.dim-tabs::-webkit-scrollbar { display: none; }
+.dim-tab {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 12px; color: var(--t2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dim-tab.active {
+  border-color: var(--tab-c, var(--mint));
+  color: var(--tab-c, var(--mint));
+  background: rgba(78,204,163,0.07);
+}
+
+.skill-list { display: flex; flex-direction: column; gap: 8px; }
+.skill-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+  display: flex; align-items: center; gap: 12px;
+}
+.skill-item:hover { border-color: var(--border-hi); }
+.skill-item:active { transform: scale(0.99); }
+.skill-item.done { opacity: 0.45; }
+.skill-item-emoji { font-size: 20px; flex-shrink: 0; }
+.skill-item-body { flex: 1; min-width: 0; }
+.skill-item-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.skill-item-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.1em; color: var(--t3);
+}
+.skill-item-xp {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; color: var(--amber); flex-shrink: 0;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SKILL DETAIL OVERLAY
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+}
+.overlay.open { display: flex; }
+.overlay-sheet {
+  width: 100%; max-width: 480px; margin: 0 auto;
+  background: var(--surface);
+  border-radius: 16px 16px 0 0;
+  max-height: 90dvh;
+  overflow-y: auto;
+  animation: slideUp 0.3s var(--ease);
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.overlay-drag {
+  width: 36px; height: 4px; background: var(--border-hi);
+  border-radius: 2px; margin: 12px auto 20px;
+}
+.overlay-inner { padding: 0 20px 20px; }
+.overlay-dim-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--dim-color, var(--mint)); margin-bottom: 8px; display: block;
+}
+.overlay-emoji { font-size: 36px; margin-bottom: 10px; display: block; }
+.overlay-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.overlay-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; color: var(--t3); margin-bottom: 16px; display: block;
+}
+.overlay-desc { font-size: 13px; line-height: 1.7; color: var(--t2); margin-bottom: 20px; }
+
+.overlay-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--t3); margin-bottom: 10px; margin-top: 20px;
+}
+.overlay-step {
+  font-size: 13px; color: var(--t2); line-height: 1.7;
+  padding-left: 14px; position: relative; margin-bottom: 4px;
+}
+.overlay-step::before { content: '→'; position: absolute; left: 0; color: var(--dim-color, var(--mint)); }
+
+.overlay-why {
+  background: var(--raised);
+  border-left: 2px solid var(--dim-color, var(--mint));
+  border-radius: 0 6px 6px 0;
+  padding: 12px 14px;
+  font-size: 12px; font-style: italic;
+  color: var(--t3); line-height: 1.65;
+  margin-top: 20px;
+}
+
+.btn-start {
+  width: 100%; margin-top: 24px;
+  background: var(--dim-color, var(--mint));
+  color: #080c08;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+  border: none; border-radius: 6px; padding: 15px;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.btn-start:active { opacity: 0.85; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   QUALIA FEEDBACK OVERLAY
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.qualia-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 300;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 24px;
+}
+.qualia-overlay.open { display: flex; }
+.qualia-card {
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: 14px;
+  padding: 28px 24px;
+  width: 100%; max-width: 380px;
+  animation: fadeUp 0.25s var(--ease);
+}
+.qualia-emoji { font-size: 28px; margin-bottom: 10px; display: block; }
+.qualia-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px; font-weight: 700; margin-bottom: 6px;
+}
+.qualia-sub { font-size: 12px; color: var(--t3); margin-bottom: 22px; }
+.qualia-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.qualia-btn {
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 8px;
+  cursor: pointer; text-align: center;
+  transition: all 0.15s;
+  font-size: 12px; color: var(--t2);
+}
+.qualia-btn span { display: block; font-size: 20px; margin-bottom: 4px; }
+.qualia-btn.selected {
+  border-color: var(--mint);
+  background: rgba(78,204,163,0.1);
+  color: var(--mint);
+}
+.btn-qualia-done {
+  width: 100%;
+  background: var(--mint); color: #080c08;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+  border: none; border-radius: 6px; padding: 13px;
+  cursor: pointer;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   REFLECT VIEW (EOD)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.reflect-prompt {
+  font-size: 14px; color: var(--t2); line-height: 1.7;
+  font-style: italic; margin-bottom: 20px;
+  border-left: 2px solid var(--mint);
+  padding-left: 14px;
+}
+.reflect-rating {
+  display: flex; gap: 8px; margin-bottom: 20px;
+}
+.rating-btn {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 4px;
+  cursor: pointer; text-align: center;
+  font-size: 20px;
+  transition: all 0.15s;
+}
+.rating-btn.selected { border-color: var(--mint); background: rgba(78,204,163,0.1); }
+
+.slider-block { margin-bottom: 16px; }
+.slider-label {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.slider-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--t3);
+}
+.slider-val { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--mint); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 2px;
+  background: var(--raised); border-radius: 2px;
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px;
+  background: var(--mint); border-radius: 50%;
+  box-shadow: 0 0 8px rgba(78,204,163,0.3);
+}
+
+textarea {
+  width: 100%;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 300;
+  color: var(--t1); resize: none;
+  line-height: 1.65;
+  transition: border-color 0.15s;
+  margin-bottom: 16px;
+}
+textarea::placeholder { color: var(--t3); }
+textarea:focus { outline: none; border-color: var(--border-hi); }
+
+.btn-save {
+  width: 100%;
+  background: var(--mint); color: #080c08;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+  border: none; border-radius: 6px; padding: 15px;
+  cursor: pointer;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PROGRESS VIEW
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px 12px;
+  text-align: center;
+}
+.stat-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px; font-weight: 800; letter-spacing: -0.03em;
+  color: var(--t1); margin-bottom: 3px;
+}
+.stat-lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--t3);
+}
+.week-chart { margin-bottom: 24px; }
+.week-bars {
+  display: flex; gap: 4px; align-items: flex-end; height: 56px;
+}
+.week-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.week-bar {
+  width: 100%; background: var(--raised); border-radius: 3px 3px 0 0;
+  position: relative; overflow: hidden; flex: 1;
+}
+.week-bar-fill {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--mint); border-radius: 3px 3px 0 0;
+  transition: height 0.6s var(--ease);
+}
+.week-day {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; color: var(--t3); text-align: center;
+}
+
+.dim-progress-list { display: flex; flex-direction: column; gap: 10px; }
+.dim-progress-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.dim-progress-em { width: 20px; text-align: center; font-size: 14px; flex-shrink: 0; }
+.dim-progress-name { font-size: 12px; color: var(--t2); width: 80px; flex-shrink: 0; }
+.dim-progress-bar { flex: 1; height: 4px; background: var(--raised); border-radius: 2px; overflow: hidden; }
+.dim-progress-fill { height: 100%; border-radius: 2px; transition: width 0.8s var(--ease); }
+.dim-progress-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; color: var(--t3); width: 30px; text-align: right; flex-shrink: 0;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   COLD START OVERLAY
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.cold-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.cold-card {
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: 14px; padding: 28px 24px;
+  width: 100%; max-width: 360px;
+  animation: fadeUp 0.3s var(--ease);
+}
+.cold-emoji { font-size: 32px; margin-bottom: 12px; display: block; }
+.cold-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.cold-sub { font-size: 12px; color: var(--t3); margin-bottom: 24px; line-height: 1.6; }
+.cold-slider-wrap { margin-bottom: 16px; }
+.btn-row { display: flex; gap: 10px; margin-top: 24px; }
+.btn-ghost {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--t3);
+  font-size: 12px; border-radius: 6px; padding: 12px;
+  cursor: pointer;
+}
+.btn-cta {
+  flex: 2;
+  background: var(--mint); color: #080c08;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+  border: none; border-radius: 6px; padding: 12px;
+  cursor: pointer;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TOAST
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.toast {
+  position: fixed; bottom: calc(76px + env(safe-area-inset-bottom));
+  left: 50%; transform: translateX(-50%) translateY(10px);
+  background: var(--raised);
+  border: 1px solid var(--border-hi);
+  border-radius: 20px; padding: 10px 18px;
+  font-size: 13px; color: var(--t1);
+  white-space: nowrap;
+  z-index: 400;
+  opacity: 0;
+  transition: all 0.3s var(--ease);
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   UTILS
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.u-hidden { display: none !important; }
+.badge { display: inline-block; background: rgba(78,204,163,0.1); border: 1px solid rgba(78,204,163,0.2); border-radius: 4px; padding: 2px 7px; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: var(--mint); margin-left: 8px; }
+</style>
 </head>
-<body class="bg-graphite-900 text-gray-300 font-sans min-h-screen flex flex-col selection:bg-amber selection:text-graphite-900">
+<body>
 
-    <nav class="fixed bottom-0 w-full bg-graphite-900/90 backdrop-blur-md border-t border-graphite-800 z-40 pb-safe">
-        <div class="max-w-2xl mx-auto flex justify-around">
-            <button onclick="switchTab('diagnostik')" id="tab-diagnostik" class="flex-1 py-4 text-xs tracking-widest uppercase font-medium tab-active transition-all">Terminal</button>
-            <button onclick="switchTab('manifest')" id="tab-manifest" class="flex-1 py-4 text-xs tracking-widest uppercase font-medium tab-inactive transition-all">Archiv</button>
+<!-- ══════════════════════════════════════════════════════════════
+     APP
+     ══════════════════════════════════════════════════════════════ -->
+<div class="app">
+
+  <!-- ── HOME ── -->
+  <div class="view active" id="viewHome">
+    <div class="home-header">
+      <div class="brand">Humaneed</div>
+      <div class="header-meta">
+        <div class="clock" id="clock">00:00</div>
+        <div class="streak-chip u-hidden" id="streakChip">
+          🔥 <span id="streakNum">0</span>
         </div>
-    </nav>
-
-    <div id="lockdownOverlay" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-1000 px-8 text-center backdrop-blur-lg">
-        <div id="timerDisplay" class="text-7xl font-mono text-gray-600 tracking-tighter mb-12">20:00</div>
-        <div id="aphorismDisplay" class="max-w-md text-gray-300 font-light text-xl leading-relaxed mb-8"></div>
-        <div class="text-amber tracking-widest text-[10px] uppercase font-mono">Die Illusion löst sich in der Stille auf.</div>
+      </div>
     </div>
 
-    <main id="view-diagnostik" class="flex-1 w-full max-w-2xl mx-auto px-6 pt-12 pb-24 flex flex-col transition-opacity duration-500">
-        <header class="mb-10 border-b border-graphite-800 pb-6 flex justify-between items-end">
-            <div>
-                <h1 class="text-xl font-medium text-gray-100 tracking-wide mb-1">Humaneed</h1>
-                <p class="text-xs text-gray-500 font-mono uppercase tracking-wider">Erlebte Selbstorganisation</p>
-            </div>
-            <div class="text-xs text-amber font-mono" id="sysTime">00:00</div>
-        </header>
+    <div class="greeting">
+      <div class="greeting-label" id="greetLabel">Guten Morgen</div>
+      <div class="greeting-text" id="greetText">Was brauchst du heute?</div>
+    </div>
 
-        <section class="space-y-8">
-            <div class="bg-graphite-800/20 p-6 rounded-sm border-l-2 border-graphite-700">
-                <div class="flex justify-between mb-4"><label class="text-xs uppercase tracking-widest font-medium text-gray-400">T-0: Biologische Basis</label><span id="valBio" class="text-amber text-xs font-mono">50%</span></div>
-                <input type="range" id="sliderBio" min="0" max="100" value="50">
-            </div>
+    <div class="xp-wrap">
+      <div class="xp-meta">
+        <span class="xp-level" id="xpLevel">Level 1</span>
+        <span class="xp-remaining" id="xpRemaining"></span>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+    </div>
 
-            <div class="bg-graphite-800/20 p-6 rounded-sm border-l-2 border-graphite-700">
-                <div class="flex justify-between mb-4"><label class="text-xs uppercase tracking-widest font-medium text-gray-400">T-1: Vagal-Zustand</label><span id="valVagal" class="text-amber text-xs font-mono">50%</span></div>
-                <input type="range" id="sliderVagal" min="0" max="100" value="50">
-            </div>
+    <!-- One Action -->
+    <div class="action-card" id="actionCard">
+      <div class="action-top">
+        <div class="action-dim-tag" id="actionDimTag">Biologie</div>
+        <div class="action-xp" id="actionXP">+15 XP</div>
+      </div>
+      <span class="action-emoji" id="actionEmoji">🚶</span>
+      <div class="action-title" id="actionTitle">10 Min Spaziergang</div>
+      <div class="action-desc" id="actionDesc"></div>
+      <div class="action-steps" id="actionSteps"></div>
+      <div class="action-time" id="actionTime">10 Min</div>
+      <button class="btn-complete" id="btnComplete" onclick="completeAction()">Als abgeschlossen markieren</button>
+      <button class="why-toggle" onclick="toggleWhy()">Warum genau das?</button>
+      <div class="why-text" id="whyText"></div>
+    </div>
 
-            <div class="bg-graphite-800/20 p-6 rounded-sm border-l-2 border-graphite-700">
-                <div class="flex justify-between mb-4"><label class="text-xs uppercase tracking-widest font-medium text-gray-400">T-3: Kognitive Last</label><span id="valCog" class="text-amber text-xs font-mono">50%</span></div>
-                <input type="range" id="sliderCog" min="0" max="100" value="50">
-            </div>
+    <!-- Dimension Grid -->
+    <div class="section-label">Deine 6 Dimensionen</div>
+    <div class="dim-grid" id="dimGrid"></div>
+  </div>
 
-            <div class="mt-4">
-                <textarea id="journalInput" rows="3" class="w-full bg-graphite-800/40 text-gray-200 border border-graphite-700 p-5 font-light text-sm resize-none focus:border-amber focus:outline-none transition-all placeholder-gray-600 rounded-sm" placeholder="Gedankenstrom erfassen. Den Autopiloten unterbrechen..."></textarea>
-            </div>
+  <!-- ── EXPLORE ── -->
+  <div class="view" id="viewExplore">
+    <div class="view-header">
+      <div class="view-title">Skills</div>
+      <div class="view-sub">Alle Übungen nach Dimension</div>
+    </div>
+    <div class="dim-tabs" id="dimTabs"></div>
+    <div class="skill-list" id="skillList"></div>
+  </div>
 
-            <button id="btnIntervention" class="w-full bg-gray-100 hover:bg-white text-graphite-900 text-xs font-bold uppercase tracking-[0.2em] py-5 rounded-sm transition-all duration-300">
-                [ Free Won't ] Aktivieren
-            </button>
-        </section>
+  <!-- ── REFLECT ── -->
+  <div class="view" id="viewReflect">
+    <div class="view-header">
+      <div class="view-title">Reflektion</div>
+      <div class="view-sub" id="reflectDate"></div>
+    </div>
+    <div class="reflect-prompt" id="reflectPrompt"></div>
+    <div class="section-label">Wie war heute?</div>
+    <div class="reflect-rating">
+      <button class="rating-btn" onclick="selectRating(1,this)"><span>😣</span></button>
+      <button class="rating-btn" onclick="selectRating(2,this)"><span>😐</span></button>
+      <button class="rating-btn" onclick="selectRating(3,this)"><span>🙂</span></button>
+      <button class="rating-btn" onclick="selectRating(4,this)"><span>😊</span></button>
+      <button class="rating-btn" onclick="selectRating(5,this)"><span>🤩</span></button>
+    </div>
+    <div class="slider-block">
+      <div class="slider-label"><span class="slider-name">Energie</span><span class="slider-val" id="sEnVal">50</span></div>
+      <input type="range" id="sEnergy" min="10" max="90" value="50" step="10" oninput="document.getElementById('sEnVal').textContent=this.value">
+    </div>
+    <div class="slider-block">
+      <div class="slider-label"><span class="slider-name">Stimmung</span><span class="slider-val" id="sMoVal">50</span></div>
+      <input type="range" id="sMood" min="10" max="90" value="50" step="10" oninput="document.getElementById('sMoVal').textContent=this.value">
+    </div>
+    <textarea id="reflectNote" rows="4" placeholder="Was hast du heute wirklich gesehen — nicht erlebt, sondern gesehen?"></textarea>
+    <button class="btn-save" onclick="saveReflection()">Speichern</button>
+  </div>
 
-        <section id="outputSection" class="mt-12 hidden opacity-0 transition-opacity duration-700">
-            <div class="bg-graphite-800/40 border border-graphite-700 p-6 rounded-sm shadow-inner">
-                <div id="terminalTyping"></div>
-            </div>
-            <button id="btnReset" class="mt-6 w-full bg-transparent text-gray-500 hover:text-gray-300 text-xs tracking-widest uppercase font-mono py-4 border border-graphite-800 rounded-sm transition-all">
-                System Reset (20 Min)
-            </button>
-        </section>
-    </main>
+  <!-- ── PROGRESS ── -->
+  <div class="view" id="viewProgress">
+    <div class="view-header">
+      <div class="view-title">Fortschritt</div>
+      <div class="view-sub">Deine Entwicklung</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" id="statStreak">0</div><div class="stat-lbl">Streak</div></div>
+      <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Skills</div></div>
+      <div class="stat-card"><div class="stat-val" id="statXP">0</div><div class="stat-lbl">XP</div></div>
+    </div>
+    <div class="section-label">Diese Woche</div>
+    <div class="week-chart">
+      <div class="week-bars" id="weekBars"></div>
+    </div>
+    <div class="section-label">Dimensionen</div>
+    <div class="dim-progress-list" id="dimProgressList"></div>
+  </div>
 
-    <main id="view-manifest" class="hidden flex-1 w-full max-w-2xl mx-auto px-6 pt-12 pb-24 flex flex-col transition-opacity duration-500">
-        <header class="mb-10 border-b border-graphite-800 pb-6">
-            <h1 class="text-xl font-medium text-gray-100 tracking-wide mb-1">Das Manifest</h1>
-            <p class="text-xs text-gray-500 font-mono uppercase tracking-wider">Philosophie & Struktur</p>
-        </header>
+</div><!-- .app -->
 
-        <article class="prose prose-invert prose-stone max-w-none font-light leading-relaxed text-sm text-gray-400 space-y-12">
-            
-            <section>
-                <h2 class="text-amber text-xs uppercase tracking-widest font-bold mb-4">I. Bewusstsein, einfach erklärt</h2>
-                <p>Stell dir vor, du sitzt irgendwo ganz ruhig. Vielleicht in deinem Zimmer. Vielleicht draußen. Und plötzlich merkst du: Du bist da. Das klingt erstmal banal. Aber wenn du genauer hinschaust, ist es eigentlich ziemlich verrückt.</p>
-                <p>Du kannst an allem zweifeln. Ob die Welt wirklich so ist, wie sie aussieht. Ob andere Menschen dich wirklich verstehen. Ob deine Erinnerungen stimmen. Aber eine Sache kannst du nicht anzweifeln: <strong>Dass du gerade etwas erlebst.</strong> Selbst wenn alles eine Illusion wäre — die Illusion wird ja erlebt. Und dafür muss es dich geben.</p>
-            </section>
+<!-- ══ NAV ══ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" id="navHome" onclick="navigate('viewHome')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Heute
+    </button>
+    <button class="nav-btn" id="navExplore" onclick="navigate('viewExplore')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Skills
+    </button>
+    <button class="nav-btn" id="navReflect" onclick="navigate('viewReflect')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Reflekt.
+    </button>
+    <button class="nav-btn" id="navProgress" onclick="navigate('viewProgress')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Verlauf
+    </button>
+  </div>
+</nav>
 
-            <section>
-                <h2 class="text-amber text-xs uppercase tracking-widest font-bold mb-4">II. Das Libet-Experiment & Free Won't</h2>
-                <p>Wer entscheidet eigentlich — du oder dein Gehirn? Ein Wissenschaftler bat Menschen: „Heb einfach irgendwann deine Hand.“ Währenddessen hat er ihr Gehirn gemessen. Das Gehirn hat schon vorher angefangen, die Bewegung vorzubereiten. Bevor die Person bewusst entschieden hat.</p>
-                <p>Dein Gehirn ist wie ein Auto, das ständig läuft. Es produziert dauernd Impulse. Aber du bist nicht komplett machtlos. Du bist vielleicht nicht derjenige, der alles startet. Aber du bist derjenige, der stoppen kann. <strong>Genau da passiert Freiheit. Nicht im Start — sondern im Nicht-Mitgehen.</strong></p>
-            </section>
+<!-- ══ SKILL DETAIL OVERLAY ══ -->
+<div class="overlay" id="skillOverlay" onclick="closeSkillOverlay(event)">
+  <div class="overlay-sheet">
+    <div class="overlay-drag"></div>
+    <div class="overlay-inner">
+      <span class="overlay-dim-tag" id="ovDimTag"></span>
+      <span class="overlay-emoji" id="ovEmoji"></span>
+      <div class="overlay-title" id="ovTitle"></div>
+      <span class="overlay-time" id="ovTime"></span>
+      <div class="overlay-desc" id="ovDesc"></div>
+      <div class="overlay-section-label">So geht's</div>
+      <div id="ovSteps"></div>
+      <div class="overlay-why" id="ovWhy"></div>
+      <button class="btn-start" id="btnStart" onclick="completeFromOverlay()">Als abgeschlossen markieren</button>
+    </div>
+  </div>
+</div>
 
-            <section>
-                <h2 class="text-amber text-xs uppercase tracking-widest font-bold mb-4">III. Die Polyvagal-Theorie</h2>
-                <p>Das autonome Nervensystem hat drei hierarchisch organisierte Systeme. Sicherheit kommt zuerst. Kein Lernen, keine Kreativität, keine tiefe Verbindung ist möglich, solange das Nervensystem in Kampf/Flucht (Sympathikus) oder Erstarrung (Dorsaler Vagus) ist. Die Pflege des Systems ist keine Selbstverwöhnung, sondern ethische Notwendigkeit.</p>
-            </section>
+<!-- ══ QUALIA OVERLAY ══ -->
+<div class="qualia-overlay" id="qualiaOverlay">
+  <div class="qualia-card">
+    <span class="qualia-emoji" id="qualiaEmoji">✅</span>
+    <div class="qualia-title" id="qualiaTitle">Wie war es?</div>
+    <div class="qualia-sub" id="qualiaSkillName"></div>
+    <div class="qualia-btns">
+      <button class="qualia-btn" onclick="selectQualia(-1,this)"><span>😓</span>Schwer</button>
+      <button class="qualia-btn" onclick="selectQualia(0,this)"><span>😐</span>Okay</button>
+      <button class="qualia-btn" onclick="selectQualia(1,this)"><span>😊</span>Gut</button>
+      <button class="qualia-btn" onclick="selectQualia(2,this)"><span>🤩</span>Super</button>
+    </div>
+    <button class="btn-qualia-done" onclick="submitQualia()">Fertig</button>
+  </div>
+</div>
 
-            <section>
-                <h2 class="text-amber text-xs uppercase tracking-widest font-bold mb-4">IV. Epigenetik & Handlung</h2>
-                <p>Erfahrungen können buchstäblich Gene an- und ausschalten. Chronischer Stress methyliert Gene, die für Stressresistenz zuständig sind. Die Konsequenz: Was wir tun, fühlen und denken, formt nicht nur unser Erlebnis, sondern greift tief in die biologische Struktur ein. Echte Veränderung passiert nicht durch Druck. Sie passiert durch Verstehen und Wiederholung in der Struktur.</p>
-            </section>
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
 
-        </article>
-    </main>
+<!-- ══ COLD START ══ -->
+<div class="cold-overlay u-hidden" id="coldOverlay">
+  <div class="cold-card">
+    <span class="cold-emoji">🧭</span>
+    <div class="cold-title">Wie geht es dir gerade?</div>
+    <div class="cold-sub">4 kurze Fragen — der Algorithmus startet sofort.</div>
+    <div class="cold-slider-wrap">
+      <div class="slider-label"><span class="slider-name">⚡ Energie</span><span class="slider-val" id="csEnVal">50</span></div>
+      <input type="range" id="csEn" min="10" max="90" value="50" step="10" oninput="document.getElementById('csEnVal').textContent=this.value">
+    </div>
+    <div class="cold-slider-wrap">
+      <div class="slider-label"><span class="slider-name">😊 Stimmung</span><span class="slider-val" id="csMoVal">50</span></div>
+      <input type="range" id="csMo" min="10" max="90" value="50" step="10" oninput="document.getElementById('csMoVal').textContent=this.value">
+    </div>
+    <div class="cold-slider-wrap">
+      <div class="slider-label"><span class="slider-name">🎯 Fokus</span><span class="slider-val" id="csFoVal">50</span></div>
+      <input type="range" id="csFo" min="10" max="90" value="50" step="10" oninput="document.getElementById('csFoVal').textContent=this.value">
+    </div>
+    <div class="cold-slider-wrap">
+      <div class="slider-label"><span class="slider-name">❤️ Verbundenheit</span><span class="slider-val" id="csCoVal">50</span></div>
+      <input type="range" id="csCo" min="10" max="90" value="50" step="10" oninput="document.getElementById('csCoVal').textContent=this.value">
+    </div>
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="skipColdStart()">Überspringen</button>
+      <button class="btn-cta" onclick="saveColdStart()">Starten ▶</button>
+    </div>
+  </div>
+</div>
 
-    <script>
-        // Tab Logic
-        function switchTab(tab) {
-            document.getElementById('view-diagnostik').classList.add('hidden');
-            document.getElementById('view-manifest').classList.add('hidden');
-            document.getElementById('tab-diagnostik').className = 'flex-1 py-4 text-xs tracking-widest uppercase font-medium tab-inactive transition-all';
-            document.getElementById('tab-manifest').className = 'flex-1 py-4 text-xs tracking-widest uppercase font-medium tab-inactive transition-all';
-            
-            document.getElementById(`view-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).className = 'flex-1 py-4 text-xs tracking-widest uppercase font-medium tab-active transition-all';
-        }
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════════════════
+   DATA
+   ═══════════════════════════════════════════════════════════════ */
 
-        setInterval(() => {
-            document.getElementById('sysTime').textContent = new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
-        }, 1000);
+const DIMS = [
+  { id:0, name:'Biologie',   emoji:'🫀', color:'#FF6B7A', key:'dim0' },
+  { id:1, name:'Emotion',    emoji:'🎭', color:'#F5A623', key:'dim1' },
+  { id:2, name:'Sozial',     emoji:'🤝', color:'#60A5FA', key:'dim2' },
+  { id:3, name:'Kognition',  emoji:'🧠', color:'#4ECCA3', key:'dim3' },
+  { id:4, name:'Kompetenz',  emoji:'🛠️', color:'#A78BFA', key:'dim4' },
+  { id:5, name:'Bedeutung',  emoji:'🌟', color:'#F5A623', key:'dim5' },
+];
 
-        const aphorisms = [
-            "Du kannst an allem zweifeln. Aber nicht daran, dass du gerade erlebst.",
-            "Die echte Freiheit passiert nicht im Start der Handlung, sondern im Nicht-Mitgehen.",
-            "Veränderung passiert nicht durch Druck. Sie passiert durch klares Sehen.",
-            "Bedeutung findet sich nicht im Ereignis, sondern in deiner Aufmerksamkeit.",
-            "Dein Gehirn war schneller als dein Gefühl von 'Ich entscheide'. Nutze die Lücke."
-        ];
+const LEVELS = [0,100,250,500,1000,1750,2750,4000,5500,7500,10000,13000,16500,20500,25000,30000,36000,43000,51000,60000];
 
-        // Die erweiterte Matrix inkl. Philosophischer Begründung
-        const knowledgeBase = [
-            { id: "01", keywords: ["arbeit", "übergang", "abschalten"], d: "Schwellen-Trauma. Keine Trennung zwischen Sphären.", t: "Setup 01: Der Schwellen-Puffer", a: "Vor der nächsten Aktion: 5 Minuten physischer Stopp. Dreimal tief ausatmen.", p: "Phänomenologie (Heidegger): Das Dasein braucht klare Raumwechsel, um das Ich-Narrativ neu zu justieren." },
-            { id: "04", keywords: ["tabs", "zerstreut", "fokus", "multitasking"], d: "Kognitive Fragmentierung.", t: "Setup 04: Die 1-Tab-Regel", a: "Schließe sofort alle Fenster bis auf eines. 45 Minuten Deep Work.", p: "Global Workspace Theory: Das Bewusstsein hat Kapazitätsgrenzen. Jeder Tab zersplittert das 'Rampenlicht'." },
-            { id: "07", keywords: ["panik", "überfordert", "stress", "angst"], d: "Akute Sympathikus-Übersteuerung.", t: "Setup 07: Physiologischer Reset", a: "Eiskaltes Wasser über die Handgelenke. Parasympathikus erzwingen.", p: "Polyvagal-Theorie (Porges): Logisches Denken ist blockiert, wenn das Nervensystem um das nackte Überleben kämpft." },
-            { id: "08", keywords: ["handy", "scrollen", "social media", "instagram"], d: "Dopamin-Loop aktiv. Der Autopilot steuert.", t: "Setup 08: Der Graustufen-Modus", a: "Handy sofort auf Schwarz-Weiß stellen.", p: "Das Libet-Experiment: Das Gehirn hat längst den Impuls zum Scrollen gesendet. Nutze das 'Free Won't', um ihn nicht auszuführen." },
-            { id: "09", keywords: ["schlaf", "abend", "licht", "müde"], d: "Circadiane Desynchronisation.", t: "Setup 09: Low-Light-Abend", a: "Nur noch warme Lichtquellen. Melatonin-Synthese einleiten.", p: "Epigenetik: Fehlender Schlaf blockiert das glymphatische System und verhindert die Neurogenese (BDNF) für den nächsten Tag." },
-            { id: "12", keywords: ["verloren", "karussell", "vergleich", "bestätigung"], d: "Instabiles Identitätsgefühl. Suche nach Halt im Außen.", t: "Setup 12: Der physische Anker", a: "Füße auf den Boden. Körper spüren. Atmen.", p: "Merleau-Ponty: Du denkst nicht mit dem Körper wie ein Pilot, du BIST dein Körper. Erdung holt das Bewusstsein in die Realität zurück." },
-            { id: "15", keywords: ["fertig", "ende", "laptop", "schluss"], d: "System stabil, aber struktureller Schutz nötig.", t: "Setup 15: Der klare Cut", a: "Laptop zuklappen. Schreibtisch räumen.", p: "Daoismus (Wu Wei): Handeln in Übereinstimmung mit der Struktur. Das physische Ritual schützt die psychische Integrität." }
-        ];
+const SKILLS = {
+  dim0:[
+    {id:'bio_1',emoji:'🚶',name:'10 Min Spaziergang',time:'10 Min',xp:15,desc:'Moderates Gehen aktiviert das Herz-Kreislauf-System und fördert die Durchblutung des präfrontalen Kortex.',howTo:['Aufrecht stehen, Schultern entspannt','Natürliche Schritte, nicht zu groß','Arme schwingen lassen','Gleichmäßiges Tempo halten','Rhythmisch atmen: Nase ein, Mund aus'],why:'BDNF-Aktivierung nach 8 Minuten — Gehirn baut neue Verbindungen auf.'},
+    {id:'bio_2',emoji:'🏃',name:'HIIT Mikro-Session',time:'5 Min',xp:25,desc:'Hochintensives Intervalltraining maximiert die mitochondriale Effizienz.',howTo:['30 Sek Aufwärmen','20 Sek Vollbelastung','10 Sek aktive Pause','Zyklus 10x wiederholen','Cooldown mit tiefer Atmung'],why:'PGC-1α-Aktivierung: Zellen werden effizienter, metabolische Rate erhöht für 24h.'},
+    {id:'bio_3',emoji:'🧘',name:'Yoga Flow',time:'15 Min',xp:20,desc:'Dynamische Bewegungssequenzen verbinden Atem und Bewegung.',howTo:['Grundpose einnehmen','Sonnengruß 3-5 Runden','Balanceposen einbauen','Atem mit jeder Bewegung synchronisieren','Savasana 2-3 Min abschließen'],why:'Reduziert Cortisol und Entzündungsmarker — Nervensystem kommt in Balance.'},
+    {id:'bio_6',emoji:'🫁',name:'4-7-8 Atmung',time:'3 Min',xp:10,desc:'Bewusstes Atemprotokoll aktiviert das parasympathische Nervensystem.',howTo:['Aufrecht sitzen','4 Sek einatmen (Nase)','7 Sek Atem halten','8 Sek vollständig ausatmen','4-8 Zyklen wiederholen'],why:'Parasympathikus-Aktivierung: Stresshormone sinken, Herzratenvariabilität steigt.'},
+    {id:'bio_7',emoji:'😮‍💨',name:'Box Breathing',time:'5 Min',xp:12,desc:'4-4-4-4 Atemmuster synchronisiert das autonome Nervensystem.',howTo:['Aufrecht sitzen','4 Sek einatmen','4 Sek halten','4 Sek ausatmen','4 Sek halten (leer), wiederholen'],why:'Vagusnerv-Stimulation: Nervensystem findet Balance, Fokus wird klarer.'},
+    {id:'bio_9',emoji:'🧊',name:'Kalte Dusche',time:'2 Min',xp:15,desc:'Kältereize aktivieren das braune Fettgewebe und erhöhen Noradrenalin.',howTo:['Dusche warm beginnen','Schrittweise auf kalt stellen','Tief durch den Kälteschock atmen','30-90 Sek kalt bleiben','Kräftig abtrocken'],why:'Noradrenalin +530%: Körper wird widerstandsfähiger und wacher.'},
+    {id:'bio_10',emoji:'💧',name:'Hydration Check',time:'1 Min',xp:5,desc:'Bewusste Flüssigkeitsaufnahme unterstützt Zellstoffwechsel und Kognition.',howTo:['Urinfarbe prüfen (hellgelb = gut)','250-500ml Wasser langsam trinken','Bei Schwitzen Prise Salz hinzufügen','Tagesziel ~2-3L verteilen'],why:'Jede Zelle funktioniert besser — Kognition und Energie bleiben stabil.'},
+    {id:'bio_13',emoji:'☀️',name:'Sonnenlicht',time:'15 Min',xp:12,desc:'UV-Exposition synchronisiert den circadianen Rhythmus.',howTo:['Ins Freie gehen','Gesicht und Arme exponieren','Erste 5 Min ohne Sonnenbrille','Verbrennung vermeiden','10-30 Min anstreben'],why:'Melatonin-Synthese und Vitamin-D-Produktion — innere Uhr wird gestellt.'},
+  ],
+  dim1:[
+    {id:'emo_1',emoji:'📝',name:'Micro-Journaling',time:'5 Min',xp:15,desc:'Strukturiertes Schreiben über emotionale Zustände fördert die präfrontale Regulation.',howTo:['Ruhigen Ort finden','Aktuelles Gefühl in einem Satz','Was hat es ausgelöst?','Körperempfindungen beschreiben','Eine Handlung festhalten'],why:'Amygdala-Reaktivität sinkt — Emotionen werden greifbar und kontrollierbar.'},
+    {id:'emo_3',emoji:'🌅',name:'Dankbarkeit (3 Dinge)',time:'2 Min',xp:10,desc:'Bewusste Erinnerung an positive Erlebnisse stärkt neuronale Pfade für positive Emotionsregulation.',howTo:['3 spezifische Dinge heute denken','Das Gefühl körperlich spüren','Laut sagen oder aufschreiben','Warum jedes wichtig ist reflektieren','Dabei lächeln'],why:'Serotonin-Verfügbarkeit steigt — positive Nervenbahnen wachsen.'},
+    {id:'emo_7',emoji:'🗣️',name:'Emotion Labeling',time:'3 Min',xp:10,desc:'Präzises Benennen von Gefühlen aktiviert regulatorische Netzwerke.',howTo:['Innehalten und bei sich einchecken','Das spezifische Gefühl benennen','Format: "Ich fühle [Emotion]"','Gefühl von Gedanke unterscheiden','Shift nach dem Benennen bemerken'],why:'Präfrontaler Kortex wird aktiv — emotionale Reaktion wird sofort kleiner.'},
+    {id:'emo_8',emoji:'🔄',name:'Kognitives Reframing',time:'8 Min',xp:15,desc:'Negative Gedanken in neutrale oder konstruktive Perspektiven umdeuten.',howTo:['Negativen Gedanken identifizieren','Fragen: Ist das 100% wahr?','Alternative Interpretationen finden','Hilfreichste Perspektive wählen','Emotionalen Shift bemerken'],why:'Kognitive Flexibilität wächst — starre Gedankenmuster lockern sich.'},
+    {id:'emo_12',emoji:'🌳',name:'Natur-Erfahrung',time:'15 Min',xp:18,desc:'Zeit in natürlicher Umgebung reduziert Stress und fördert Erholung.',howTo:['Grünen/natürlichen Raum aufsuchen','Langsam gehen, Umgebung wahrnehmen','Alle Sinne nutzen','Natürliche Elemente berühren','Tief atmen, Atmosphäre aufnehmen'],why:'Cortisol sinkt, Parasympathikus aktiviert — Nervensystem erholt sich.'},
+  ],
+  dim2:[
+    {id:'soc_1',emoji:'💬',name:'Jemanden Anrufen',time:'15 Min',xp:20,desc:'Synchrone Kommunikation aktiviert soziale Kognitionsnetzwerke.',howTo:['Person wählen, die dir wichtig ist','Anrufen (nicht schreiben)','Fragen, wie es wirklich geht','Aktiv zuhören','Authentisch über dich teilen'],why:'Oxytocin-Ausschüttung: Verbundenheit stärkt nachweislich das Immunsystem.'},
+    {id:'soc_6',emoji:'🎧',name:'Aktives Zuhören',time:'15 Min',xp:18,desc:'Volle Aufmerksamkeit ohne Agenda fördert Empathie und Verbindung.',howTo:['Ungeteilte Aufmerksamkeit geben','Nicht unterbrechen oder Antwort planen','Zuhören signalisieren (Augenkontakt)','Gehörtes spiegeln','Klärende Fragen stellen'],why:'Spiegelneuronen aktiviert — echte Nähe entsteht durch wirkliches Zuhören.'},
+    {id:'soc_2',emoji:'🤝',name:'Kompliment geben',time:'2 Min',xp:10,desc:'Prosoziales Verhalten aktiviert Belohnungszentren und stärkt Bindungen.',howTo:['Etwas Aufrichtiges bemerken','Spezifisch sein (nicht generisch)','Augenkontakt halten','Aufrichtig liefern, ohne Erwartung','Reaktion warm wahrnehmen'],why:'Dopamin-Aktivierung: Geben macht genauso glücklich wie den Empfänger.'},
+    {id:'soc_9',emoji:'🤗',name:'Umarmung initiieren',time:'1 Min',xp:8,desc:'Körperkontakt setzt Bindungshormone frei.',howTo:['Einwilligung einholen','Vollständig umarmen','6+ Sekunden halten','Die Wärme spüren','Natürlich loslassen'],why:'Oxytocin-Spike sofort: Stresshormone sinken, Verbundenheit wächst.'},
+  ],
+  dim3:[
+    {id:'cog_1',emoji:'📚',name:'Lesen (Sachbuch)',time:'20 Min',xp:20,desc:'Tiefes Lesen aktiviert Netzwerke für Sprachverarbeitung, Aufmerksamkeit und semantisches Gedächtnis.',howTo:['Qualitätsbuch oder Artikel wählen','Ruhigen Ort finden','Aktiv lesen (Notizen machen)','Bei Schlüsselideen pausieren','Hauptpunkte danach zusammenfassen'],why:'Hippocampale Neuroplastizität — Gehirn bleibt länger scharf.'},
+    {id:'cog_6',emoji:'🎯',name:'Deep Work Block',time:'25 Min',xp:30,desc:'Fokussierte Arbeit ohne Ablenkung maximiert kognitive Ressourcenallokation.',howTo:['Alle Ablenkungen entfernen','Timer stellen (25 Min)','Eine Aufgabe fokussiert bearbeiten','Kein Multitasking','Danach Pause machen'],why:'Präfrontale Netzwerke gestärkt — 25 Minuten Fokus schlagen 2 Stunden abgelenkt.'},
+    {id:'cog_9',emoji:'💭',name:'Denk-Spaziergang',time:'15 Min',xp:18,desc:'Gehen + offenes Denken fördert kreative Einsichten.',howTo:['Problem oder Frage wählen','Komfortabel gehen','Geist wandern lassen','Lösungen nicht erzwingen','Einsichten notieren'],why:'Default Mode Network aktiviert — Gedankenblockaden lösen sich durch Bewegung.'},
+    {id:'cog_11',emoji:'✍️',name:'Freewriting',time:'10 Min',xp:15,desc:'Ungefilteres Schreiben aktiviert assoziative Netzwerke.',howTo:['Timer 10 Min stellen','Kontinuierlich schreiben','Nicht bearbeiten oder urteilen','Gedanken fließen lassen','Auf Einsichten überprüfen'],why:'Divergentes Denken entfaltet sich — Kopf wird freier, kreative Ideen entstehen.'},
+  ],
+  dim4:[
+    {id:'comp_1',emoji:'📚',name:'Neues Konzept lernen',time:'15 Min',xp:20,desc:'Neues Wissen fördert neuronale Reorganisation.',howTo:['Spezifisches Thema wählen','Qualitätsquelle finden','Aktiv lernen (Notizen)','In eigenen Worten erklären','Anwenden wenn möglich'],why:'Hippocampale Enkodierung: Expertise wächst Schritt für Schritt.'},
+    {id:'comp_5',emoji:'🎯',name:'Gezieltes Üben',time:'30 Min',xp:35,desc:'Gezieltes Üben von Schwächen mit sofortigem Feedback.',howTo:['Spezifische Schwäche identifizieren','Fokussiertes Drill entwerfen','Mit voller Aufmerksamkeit üben','Sofortiges Feedback holen','Schnell iterieren'],why:'Beschleunigte Myelinisierung — bewusstes Üben macht stärker als bloßes Wiederholen.'},
+    {id:'comp_9',emoji:'🎓',name:'Eine Fähigkeit lehren',time:'20 Min',xp:30,desc:'Wissen erklären und demonstrieren vertieft das eigene Verständnis (Feynman-Technik).',howTo:['Bekanntes Thema wählen','Erklären als wäre jemand 5 Jahre alt','Beispiele und Analogien nutzen','Fragen beantworten','Wissenslücken bemerken'],why:'Lehren ist die tiefste Form des Lernens — Wissen wird durch Teilen tiefer.'},
+    {id:'comp_11',emoji:'📅',name:'Tag/Woche planen',time:'10 Min',xp:15,desc:'Zeitstrukturierung fördert Selbstregulation.',howTo:['Ziele und Kalender prüfen','Top-Prioritäten identifizieren','Zeit für Wichtiges blockieren','Realistischen Plan erstellen','Intentionen setzen'],why:'Präfrontale Planungsnetzwerke: Struktur schafft Freiheit — klingt paradox, ist aber so.'},
+  ],
+  dim5:[
+    {id:'mean_1',emoji:'🎯',name:'Werte klären',time:'10 Min',xp:20,desc:'Klarheit über eigene Werte gibt Entscheidungen Richtung.',howTo:['Welche 5 Werte leiten mich?','Wie gut lebe ich sie gerade?','Wo gibt es Diskrepanzen?','Einen Schritt zur Annäherung finden','Aufschreiben'],why:'Innere Klarheit ist echter Reichtum — du weißt besser was du willst wenn du weißt wer du bist.'},
+    {id:'mean_3',emoji:'🧘',name:'Stille / Meditation',time:'10 Min',xp:15,desc:'Stille ist kein Vakuum — sie ist der Raum für dich selbst.',howTo:['Bequeme Position einnehmen','Augen schließen','Auf den Atem fokussieren','Gedanken kommen und gehen lassen','Sanft zurückkehren wenn abgelenkt'],why:'Gehirn verändert sich messbar — reguläre Stille macht Lärm erträglicher.'},
+    {id:'mean_11',emoji:'🌿',name:'Achtsamkeit',time:'5 Min',xp:12,desc:'Im Moment bleiben — auch wenn es schwierig wird.',howTo:['Nur Sekunden reichen um anzukommen','Alle Sinne bemerken','Ohne Urteil wahrnehmen','Gedanken beobachten statt mitgehen','Wieder und wieder zurückkehren'],why:'Stress sinkt messbar — dieser Augenblick ist alles was wirklich existiert.'},
+    {id:'mean_7',emoji:'❤️',name:'Wirklich helfen',time:'15 Min',xp:18,desc:'Helfen gibt dem Leben Bedeutung — biologisch bewiesen.',howTo:['Opportunity bemerken','Handeln ohne Erwartung','Anonym wenn möglich','Wie es sich anfühlt bemerken','Zur Gewohnheit machen'],why:'Dein Körper belohnt echtes Helfen mit echtem Wohlgefühl — du bist Teil von etwas Größerem.'},
+  ],
+};
 
-        const sliders = { bio: document.getElementById('sliderBio'), vagal: document.getElementById('sliderVagal'), cog: document.getElementById('sliderCog') };
-        Object.keys(sliders).forEach(key => {
-            sliders[key].addEventListener('input', (e) => { document.getElementById('val' + key.charAt(0).toUpperCase() + key.slice(1)).textContent = e.target.value + '%'; });
-        });
+/* ═══════════════════════════════════════════════════════════════
+   STORAGE
+   ═══════════════════════════════════════════════════════════════ */
+const S = {
+  get:(k,d=null)=>{ try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch{return d;} },
+  set:(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch{} },
+};
 
-        document.getElementById('btnIntervention').addEventListener('click', () => {
-            const btn = document.getElementById('btnIntervention');
-            const out = document.getElementById('outputSection');
-            const terminal = document.getElementById('terminalTyping');
-            
-            const b = parseInt(sliders.bio.value);
-            const v = parseInt(sliders.vagal.value);
-            const c = parseInt(sliders.cog.value);
-            const text = document.getElementById('journalInput').value.toLowerCase();
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════════ */
+let state = {
+  currentView: 'viewHome',
+  currentSkill: null,
+  currentDimId: null,
+  selectedQualia: null,
+  selectedRating: 0,
+  exploreDimId: 0,
+};
 
-            btn.textContent = "Analysiere Kausalität...";
-            btn.style.pointerEvents = 'none';
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════ */
+function init() {
+  startClock();
+  renderHome();
+  renderExploreTabs();
+  renderExploreSkills();
+  renderReflect();
+  renderProgress();
 
-            let match = knowledgeBase.find(item => item.keywords.some(kw => text.includes(kw)));
+  const ms = S.get('humaneed_ms',{});
+  const dismissed = S.get('humaneed_cs_done',false);
+  if (!ms.lastUpdated && !dismissed) {
+    document.getElementById('coldOverlay').classList.remove('u-hidden');
+  }
+}
 
-            if (!match) {
-                if (b < 40 && b <= v && b <= c) match = knowledgeBase.find(item => item.id === "07");
-                else if (v < 40 && v <= b && v <= c) match = knowledgeBase.find(item => item.id === "12");
-                else if (c < 40 && c <= b && c <= v) match = knowledgeBase.find(item => item.id === "04");
-                else match = knowledgeBase.find(item => item.id === "15");
-            }
+/* ═══════════════════════════════════════════════════════════════
+   CLOCK
+   ═══════════════════════════════════════════════════════════════ */
+function startClock() {
+  const tick = ()=>{
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  };
+  tick(); setInterval(tick,1000);
+}
 
-            out.classList.remove('hidden');
-            setTimeout(() => out.classList.remove('opacity-0'), 50);
-            
-            terminal.innerHTML = `<span class="text-gray-500 font-mono animate-pulse">Lade Philosophie-Kern...</span>`;
+/* ═══════════════════════════════════════════════════════════════
+   MENTAL STATE
+   ═══════════════════════════════════════════════════════════════ */
+function getMentalState() {
+  const ms = S.get('humaneed_ms',{energy:50,mood:50,focus:50,connection:50,lastUpdated:0});
+  if (ms.lastUpdated) {
+    const hrs = (Date.now()-ms.lastUpdated)/(1000*60*60);
+    const decay = Math.exp(-hrs/8);
+    ['energy','mood','focus','connection'].forEach(k=>{
+      if(ms[k]!==undefined) ms[k]=50+(ms[k]-50)*decay;
+    });
+  }
+  return ms;
+}
 
-            setTimeout(() => {
-                terminal.innerHTML = `
-                    <div class="mb-4 text-gray-100 font-medium text-sm leading-relaxed">${match.d}</div>
-                    <div class="mb-1 text-amber uppercase tracking-widest text-xs font-bold">${match.t}</div>
-                    <div class="text-gray-300 font-light text-sm mb-6">${match.a}</div>
-                    <div class="border-t border-graphite-700 pt-4 mt-4">
-                        <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1 font-mono">Der Mechanismus</div>
-                        <div class="text-gray-400 font-light text-xs italic leading-relaxed border-l-2 border-amber pl-3">${match.p}</div>
-                    </div>
-                `;
-                btn.textContent = "[ Free Won't ] Aktivieren";
-                btn.style.pointerEvents = 'auto';
-            }, 600);
-        });
+function updateMentalState(dimId,quality) {
+  const effects = [{energy:18,mood:5,focus:0,connection:0},{energy:5,mood:22,focus:10,connection:0},{energy:0,mood:12,focus:0,connection:22},{energy:-8,mood:5,focus:18,connection:0},{energy:-12,mood:8,focus:12,connection:0},{energy:0,mood:18,focus:0,connection:12}];
+  const qm = [0.4,0.7,1.0,1.4][quality+1]??0.7;
+  const ms = getMentalState();
+  const e = effects[dimId]||{};
+  Object.entries(e).forEach(([k,v])=>{ ms[k]=Math.max(0,Math.min(100,(ms[k]||50)+v*qm)); });
+  ms.lastUpdated = Date.now();
+  S.set('humaneed_ms',ms);
+}
 
-        document.getElementById('btnReset').addEventListener('click', () => {
-            document.getElementById('aphorismDisplay').textContent = aphorisms[Math.floor(Math.random() * aphorisms.length)];
-            document.body.classList.add('lockdown');
-            document.getElementById('lockdownOverlay').classList.remove('hidden');
-            setTimeout(() => document.getElementById('lockdownOverlay').classList.remove('opacity-0'), 50);
-            
-            let timeLeft = 20 * 60;
-            const timerDisp = document.getElementById('timerDisplay');
-            
-            const timerInt = setInterval(() => {
-                timeLeft--;
-                const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-                const s = (timeLeft % 60).toString().padStart(2, '0');
-                timerDisp.textContent = `${m}:${s}`;
-                if (timeLeft <= 0) { clearInterval(timerInt); location.reload(); }
-            }, 1000);
-        });
-    </script>
+/* ═══════════════════════════════════════════════════════════════
+   SMART RECOMMENDATION
+   ═══════════════════════════════════════════════════════════════ */
+function getDimScores() {
+  const today = new Date().toISOString().split('T')[0];
+  const done = S.get('humaneed_done',[]);
+  const ms = getMentalState();
+  return DIMS.map(d=>{
+    const dimDone = done.filter(e=>e.dimId===d.id);
+    const todayDone = dimDone.filter(e=>e.date===today).length;
+    const totalDone = dimDone.length;
+    const base = Math.min(100, todayDone*15+totalDone*2);
+    return Math.round(base);
+  });
+}
+
+function getRecommendation() {
+  const ms = getMentalState();
+  const today = new Date().toISOString().split('T')[0];
+  const done = S.get('humaneed_done',[]).filter(e=>e.date===today).map(e=>e.skillId);
+
+  // Score each dim by need
+  const scores = getDimScores();
+  let lowestDim = 0;
+  scores.forEach((s,i)=>{ if(s<scores[lowestDim]) lowestDim=i; });
+
+  // Energy-based dim selection
+  let targetDim = lowestDim;
+  if (ms.energy<35 && ms.energy<=ms.mood) targetDim=0; // bio first
+  else if (ms.mood<35) targetDim=1;                    // emotion
+  else if (ms.connection<35) targetDim=2;              // social
+
+  const dimKey = DIMS[targetDim].key;
+  const pool = (SKILLS[dimKey]||[]).filter(s=>!done.includes(s.id));
+  const candidates = pool.length ? pool : (SKILLS[dimKey]||[]);
+  const skill = candidates[Math.floor(Math.random()*candidates.length)] || SKILLS.dim0[0];
+  return { skill, dimId: targetDim };
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HOME
+   ═══════════════════════════════════════════════════════════════ */
+const GREETINGS = [
+  {h:[5,11],  label:'Guten Morgen',  texts:['Der präfrontale Kortex ist jetzt optimal.','Cortisol-Peak: Der Körper ist bereit.','Jetzt ist der beste Moment für Tiefes.']},
+  {h:[11,14], label:'Guter Mittag',  texts:['Kurze Neuausrichtung, dann weiter.','Wie steht die Energie?','Ein Moment der Klarheit.']},
+  {h:[14,18], label:'Guten Nachmittag',texts:['Zweite Energie-Phase.','Der Körper weiß was er braucht.','Was fehlt noch heute?']},
+  {h:[18,22], label:'Guten Abend',   texts:['Zeit, den Tag zu integrieren.','Was hat heute wirklich gezählt?','Nervous System erholen.']},
+  {h:[22,5],  label:'Gute Nacht',    texts:['Schlaf ist aktive Erholung.','Das Gehirn reinigt sich jetzt.','Morgen wieder.']},
+];
+
+function getGreeting() {
+  const h = new Date().getHours();
+  const g = GREETINGS.find(g=>h>=g.h[0]&&h<g.h[1])||GREETINGS[0];
+  return { label: g.label, text: g.texts[Math.floor(Math.random()*g.texts.length)] };
+}
+
+function renderHome() {
+  const g = getGreeting();
+  document.getElementById('greetLabel').textContent = g.label;
+  document.getElementById('greetText').textContent = g.text;
+
+  // Streak
+  const streak = calcStreak();
+  const chip = document.getElementById('streakChip');
+  if (streak>0) { chip.classList.remove('u-hidden'); document.getElementById('streakNum').textContent=streak; }
+  else chip.classList.add('u-hidden');
+
+  // XP
+  const totalXP = S.get('humaneed_xp',0);
+  let lvl = 1;
+  for(let i=LEVELS.length-1;i>=0;i--){ if(totalXP>=LEVELS[i]){lvl=i+1;break;} }
+  lvl = Math.min(lvl,20);
+  const curXP = LEVELS[lvl-1]||0;
+  const nextXP = LEVELS[lvl]||LEVELS[LEVELS.length-1];
+  const pct = Math.min(100,((totalXP-curXP)/(nextXP-curXP))*100);
+  document.getElementById('xpLevel').textContent = `Level ${lvl}`;
+  document.getElementById('xpRemaining').textContent = lvl<20 ? `Noch ${nextXP-totalXP} XP bis Level ${lvl+1}` : 'Max Level 🏆';
+  setTimeout(()=>document.getElementById('xpFill').style.width=pct+'%',100);
+
+  // Action
+  const rec = getRecommendation();
+  state.currentSkill = rec.skill;
+  state.currentDimId = rec.dimId;
+  const dim = DIMS[rec.dimId];
+  document.getElementById('actionCard').style.setProperty('--dim-color',dim.color);
+  document.getElementById('actionDimTag').textContent = dim.emoji+' '+dim.name;
+  document.getElementById('actionDimTag').style.color = dim.color;
+  document.getElementById('actionDimTag').style.borderColor = dim.color+'44';
+  document.getElementById('actionDimTag').style.background = dim.color+'11';
+  document.getElementById('actionXP').textContent = `+${rec.skill.xp} XP`;
+  document.getElementById('actionEmoji').textContent = rec.skill.emoji;
+  document.getElementById('actionTitle').textContent = rec.skill.name;
+  document.getElementById('actionDesc').textContent = rec.skill.desc;
+  document.getElementById('actionTime').textContent = rec.skill.time;
+  document.getElementById('whyText').textContent = rec.skill.why||'';
+  document.getElementById('btnComplete').style.background = dim.color;
+  const stepsEl = document.getElementById('actionSteps');
+  if(rec.skill.howTo){
+    stepsEl.innerHTML = rec.skill.howTo.slice(0,3).map(s=>`<div class="action-step">${s}</div>`).join('');
+  }
+
+  // Dim grid
+  renderDimGrid();
+}
+
+function renderDimGrid() {
+  const scores = getDimScores();
+  const grid = document.getElementById('dimGrid');
+  grid.innerHTML = DIMS.map((d,i)=>{
+    const s = scores[i];
+    const cls = s<20?'critical-score':s<40?'low-score':'';
+    return `<div class="dim-card ${cls}" style="--dim-c:${d.color}" onclick="openDimFromHome(${d.id})">
+      <span class="dim-emoji">${d.emoji}</span>
+      <div class="dim-name">${d.name}</div>
+      <div class="dim-bar"><div class="dim-bar-fill" style="width:${s}%;background:${d.color}"></div></div>
+      <div class="dim-score">${s}%</div>
+    </div>`;
+  }).join('');
+}
+
+function openDimFromHome(dimId) {
+  navigate('viewExplore');
+  selectExploreDim(dimId);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPLETE ACTION
+   ═══════════════════════════════════════════════════════════════ */
+function completeAction() {
+  if(!state.currentSkill) return;
+  openQualia(state.currentSkill, state.currentDimId);
+}
+
+function completeFromOverlay() {
+  closeSkillOverlay();
+  if(!state.currentSkill) return;
+  openQualia(state.currentSkill, state.currentDimId);
+}
+
+function recordCompletion(skillId,dimId,quality) {
+  const today = new Date().toISOString().split('T')[0];
+  const done = S.get('humaneed_done',[]);
+  done.push({skillId,dimId,date:today,quality,ts:Date.now()});
+  S.set('humaneed_done',done);
+
+  const skill = findSkill(skillId);
+  const xp = skill?skill.xp:10;
+  S.set('humaneed_xp',(S.get('humaneed_xp',0)+xp));
+
+  updateMentalState(dimId,quality);
+  if(navigator.vibrate) navigator.vibrate([40,30,60]);
+}
+
+function findSkill(id) {
+  for(const k of Object.keys(SKILLS)){
+    const f = SKILLS[k].find(s=>s.id===id);
+    if(f) return f;
+  }
+  return null;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   WHY TOGGLE
+   ═══════════════════════════════════════════════════════════════ */
+function toggleWhy() {
+  document.getElementById('whyText').classList.toggle('open');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   QUALIA
+   ═══════════════════════════════════════════════════════════════ */
+function openQualia(skill, dimId) {
+  state.selectedQualia = null;
+  state.currentSkill = skill;
+  state.currentDimId = dimId;
+  document.getElementById('qualiaEmoji').textContent = skill.emoji;
+  document.getElementById('qualiaTitle').textContent = 'Wie war es?';
+  document.getElementById('qualiaSkillName').textContent = skill.name;
+  document.querySelectorAll('.qualia-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('qualiaOverlay').classList.add('open');
+}
+
+function selectQualia(val, btn) {
+  state.selectedQualia = val;
+  document.querySelectorAll('.qualia-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function submitQualia() {
+  if(state.selectedQualia===null) return;
+  recordCompletion(state.currentSkill.id, state.currentDimId, state.selectedQualia);
+  document.getElementById('qualiaOverlay').classList.remove('open');
+  closeSkillOverlay();
+  const xp = state.currentSkill.xp || 10;
+  toast(`✅ +${xp} XP — ${state.currentSkill.name}`);
+  setTimeout(()=>{ renderHome(); renderProgress(); },300);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SKILL OVERLAY
+   ═══════════════════════════════════════════════════════════════ */
+function openSkillOverlay(skill, dimId) {
+  state.currentSkill = skill;
+  state.currentDimId = dimId;
+  const dim = DIMS[dimId];
+  document.getElementById('skillOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+
+  document.getElementById('skillOverlay').style.setProperty('--dim-color',dim.color);
+  document.getElementById('ovDimTag').textContent = dim.emoji+' '+dim.name;
+  document.getElementById('ovDimTag').style.color = dim.color;
+  document.getElementById('ovEmoji').textContent = skill.emoji;
+  document.getElementById('ovTitle').textContent = skill.name;
+  document.getElementById('ovTime').textContent = '⏱ '+skill.time+' · +'+skill.xp+' XP';
+  document.getElementById('ovDesc').textContent = skill.desc;
+  document.getElementById('btnStart').style.background = dim.color;
+
+  if(skill.howTo){
+    document.getElementById('ovSteps').innerHTML = skill.howTo.map(s=>`<div class="overlay-step">${s}</div>`).join('');
+  }
+  if(skill.why){
+    document.getElementById('ovWhy').textContent = skill.why;
+  }
+}
+
+function closeSkillOverlay(e) {
+  if(e&&e.target!==document.getElementById('skillOverlay')) return;
+  document.getElementById('skillOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPLORE
+   ═══════════════════════════════════════════════════════════════ */
+function renderExploreTabs() {
+  document.getElementById('dimTabs').innerHTML = DIMS.map(d=>
+    `<button class="dim-tab${d.id===0?' active':''}" id="dimTab${d.id}" style="--tab-c:${d.color}" onclick="selectExploreDim(${d.id})">${d.emoji} ${d.name}</button>`
+  ).join('');
+}
+
+function selectExploreDim(id) {
+  state.exploreDimId = id;
+  document.querySelectorAll('.dim-tab').forEach(b=>b.classList.remove('active'));
+  const tabEl = document.getElementById('dimTab'+id);
+  if(tabEl) tabEl.classList.add('active');
+  renderExploreSkills();
+}
+
+function renderExploreSkills() {
+  const dim = DIMS[state.exploreDimId];
+  const today = new Date().toISOString().split('T')[0];
+  const done = S.get('humaneed_done',[]).filter(e=>e.date===today).map(e=>e.skillId);
+  const skills = SKILLS[dim.key]||[];
+  document.getElementById('skillList').innerHTML = skills.map(s=>{
+    const isDone = done.includes(s.id);
+    return `<div class="skill-item${isDone?' done':''}" onclick="openSkillOverlay(${JSON.stringify(s)},${dim.id})">
+      <div class="skill-item-emoji">${s.emoji}</div>
+      <div class="skill-item-body">
+        <div class="skill-item-name">${s.name}${isDone?' ✓':''}</div>
+        <div class="skill-item-meta">${dim.name} · ${s.time}</div>
+      </div>
+      <div class="skill-item-xp">+${s.xp} XP</div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REFLECT
+   ═══════════════════════════════════════════════════════════════ */
+const PROMPTS = [
+  'Was hast du heute wirklich gesehen — nicht erlebt, sondern gesehen?',
+  'Wo hast du heute Kraft eingesetzt statt Stärke?',
+  'Gab es einen Moment, wo du Bestätigung gesucht hast?',
+  'Was ist dir heute klar geworden, das du vorher vermieden hast?',
+  'Welcher Moment war klein — aber du warst wirklich dabei?',
+  'Was konntest du loslassen? Was noch nicht?',
+  'Was hat deinen Zustand heute am meisten beeinflusst?',
+];
+
+function renderReflect() {
+  const today = new Date();
+  document.getElementById('reflectDate').textContent = today.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+  const prompt = PROMPTS[today.getDay()%PROMPTS.length];
+  document.getElementById('reflectPrompt').textContent = prompt;
+  document.getElementById('reflectNote').placeholder = prompt;
+}
+
+function selectRating(val,btn) {
+  state.selectedRating = val;
+  document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function saveReflection() {
+  if(!state.selectedRating) { toast('Bitte Tages-Rating wählen'); return; }
+  const today = new Date().toISOString().split('T')[0];
+  const reflections = S.get('humaneed_reflections',{});
+  reflections[today] = {
+    rating: state.selectedRating,
+    energy: parseInt(document.getElementById('sEnergy').value),
+    mood: parseInt(document.getElementById('sMood').value),
+    note: document.getElementById('reflectNote').value.trim(),
+    ts: Date.now(),
+  };
+  S.set('humaneed_reflections',reflections);
+
+  // Update mental state from reflection
+  const ms = S.get('humaneed_ms',{});
+  ms.energy = parseInt(document.getElementById('sEnergy').value);
+  ms.mood = parseInt(document.getElementById('sMood').value);
+  ms.lastUpdated = Date.now();
+  S.set('humaneed_ms',ms);
+
+  toast('🌙 Reflektion gespeichert');
+  state.selectedRating = 0;
+  document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('reflectNote').value='';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROGRESS
+   ═══════════════════════════════════════════════════════════════ */
+function calcStreak() {
+  const done = S.get('humaneed_done',[]);
+  const days = [...new Set(done.map(e=>e.date))].sort().reverse();
+  if(!days.length) return 0;
+  let streak=0, cur=new Date();
+  for(const d of days){
+    const expected = cur.toISOString().split('T')[0];
+    if(d===expected){ streak++; cur.setDate(cur.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+
+function renderProgress() {
+  const done = S.get('humaneed_done',[]);
+  const xp = S.get('humaneed_xp',0);
+  const streak = calcStreak();
+  document.getElementById('statStreak').textContent = streak;
+  document.getElementById('statTotal').textContent = done.length;
+  document.getElementById('statXP').textContent = xp;
+
+  // Week bars
+  const days=['Mo','Di','Mi','Do','Fr','Sa','So'];
+  const today = new Date();
+  const weekBars = document.getElementById('weekBars');
+  const maxPerDay = 5;
+  weekBars.innerHTML = Array.from({length:7},(_,i)=>{
+    const d = new Date(today);
+    d.setDate(today.getDate()-(6-i));
+    const key = d.toISOString().split('T')[0];
+    const cnt = done.filter(e=>e.date===key).length;
+    const h = Math.min(100,cnt/maxPerDay*100);
+    const dayName = days[d.getDay()===0?6:d.getDay()-1];
+    const isToday = key===today.toISOString().split('T')[0];
+    return `<div class="week-bar-wrap">
+      <div class="week-bar"><div class="week-bar-fill" style="height:${h}%;background:${isToday?'var(--mint)':'var(--border-hi)'}"></div></div>
+      <div class="week-day" style="${isToday?'color:var(--mint)':''}">${dayName}</div>
+    </div>`;
+  }).join('');
+
+  // Dim progress
+  const scores = getDimScores();
+  document.getElementById('dimProgressList').innerHTML = DIMS.map((d,i)=>{
+    return `<div class="dim-progress-row">
+      <div class="dim-progress-em">${d.emoji}</div>
+      <div class="dim-progress-name">${d.name}</div>
+      <div class="dim-progress-bar"><div class="dim-progress-fill" style="width:${scores[i]}%;background:${d.color}"></div></div>
+      <div class="dim-progress-pct">${scores[i]}%</div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATE
+   ═══════════════════════════════════════════════════════════════ */
+function navigate(viewId) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+  state.currentView = viewId;
+
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const map = {viewHome:'navHome',viewExplore:'navExplore',viewReflect:'navReflect',viewProgress:'navProgress'};
+  if(map[viewId]) document.getElementById(map[viewId]).classList.add('active');
+
+  if(viewId==='viewProgress') renderProgress();
+  if(viewId==='viewExplore') { renderExploreTabs(); renderExploreSkills(); }
+  if(viewId==='viewReflect') renderReflect();
+
+  window.scrollTo(0,0);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COLD START
+   ═══════════════════════════════════════════════════════════════ */
+function saveColdStart() {
+  const ms = {
+    energy: parseInt(document.getElementById('csEn').value),
+    mood:   parseInt(document.getElementById('csMo').value),
+    focus:  parseInt(document.getElementById('csFo').value),
+    connection: parseInt(document.getElementById('csCo').value),
+    lastUpdated: Date.now(),
+  };
+  S.set('humaneed_ms',ms);
+  S.set('humaneed_cs_done',true);
+  document.getElementById('coldOverlay').classList.add('u-hidden');
+  toast('🧭 Kalibriert — Empfehlungen starten');
+  renderHome();
+}
+function skipColdStart() {
+  S.set('humaneed_cs_done',true);
+  document.getElementById('coldOverlay').classList.add('u-hidden');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════════════════════════════ */
+let _toastTimer=null;
+function toast(msg,dur=2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=>el.classList.remove('show'),dur);
+}
+
+/* ─── Start ─── */
+document.addEventListener('DOMContentLoaded',init);
+</script>
 </body>
 </html>
