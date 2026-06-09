@@ -550,6 +550,136 @@ textarea:focus { outline: none; border-color: var(--border-hi); }
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   IMPULS VIEW
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Mood chips */
+.mood-chips {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 20px;
+}
+.mood-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 7px 14px;
+  font-size: 13px; color: var(--t2);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.mood-chip:active { transform: scale(0.96); }
+.mood-chip.selected {
+  border-color: var(--mint);
+  background: rgba(78,204,163,0.1);
+  color: var(--mint);
+}
+
+/* Input area */
+.impuls-input-wrap { position: relative; margin-bottom: 16px; }
+.impuls-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px 52px 16px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 300;
+  color: var(--t1);
+  resize: none; outline: none;
+  line-height: 1.6;
+  transition: border-color 0.15s;
+  min-height: 80px;
+}
+.impuls-input::placeholder { color: var(--t3); }
+.impuls-input:focus { border-color: var(--border-hi); }
+.impuls-send {
+  position: absolute; right: 10px; bottom: 10px;
+  width: 36px; height: 36px;
+  background: var(--mint); color: #080c08;
+  border: none; border-radius: 8px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.15s, transform 0.1s;
+  flex-shrink: 0;
+}
+.impuls-send:hover { opacity: 0.85; }
+.impuls-send:active { transform: scale(0.94); }
+.impuls-send svg { width: 16px; height: 16px; }
+.impuls-send:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+/* Response card */
+.impuls-result {
+  display: none;
+  animation: fadeUp 0.35s var(--ease);
+}
+.impuls-result.visible { display: block; }
+
+.impuls-card {
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.impuls-card-top {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.impuls-diag-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--t3); margin-bottom: 8px;
+}
+.impuls-diag-text {
+  font-size: 14px; line-height: 1.7; color: var(--t1);
+}
+.impuls-card-action {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.impuls-action-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--mint); margin-bottom: 6px;
+}
+.impuls-action-text {
+  font-size: 13px; color: var(--t2); line-height: 1.65;
+}
+.impuls-card-mech {
+  padding: 14px 20px;
+  background: var(--raised);
+}
+.impuls-mech-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--t3); margin-bottom: 6px;
+}
+.impuls-mech-text {
+  font-size: 12px; font-style: italic; color: var(--t3); line-height: 1.65;
+}
+
+/* Streaming cursor */
+.cursor { display: inline-block; width: 2px; height: 13px; background: var(--mint); margin-left: 2px; vertical-align: middle; animation: blink 0.85s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* Loading dots */
+.loading-dots { display: inline-flex; gap: 5px; align-items: center; padding: 20px; }
+.loading-dots span { width: 5px; height: 5px; background: var(--mint); border-radius: 50%; opacity: 0.3; animation: dot 1.2s ease-in-out infinite; }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
+
+/* Reset button */
+.btn-impuls-reset {
+  background: none; border: 1px solid var(--border);
+  color: var(--t3); font-size: 11px; font-family: 'DM Mono', monospace;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 10px 16px; border-radius: 6px; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-impuls-reset:hover { border-color: var(--border-hi); color: var(--t2); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    PROGRESS VIEW
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 24px; }
@@ -754,6 +884,57 @@ textarea:focus { outline: none; border-color: var(--border-hi); }
     <button class="btn-save" onclick="saveReflection()">Speichern</button>
   </div>
 
+  <!-- ── IMPULS ── -->
+  <div class="view" id="viewImpuls">
+    <div class="view-header">
+      <div class="view-title">Impuls</div>
+      <div class="view-sub">Ein Wort genügt</div>
+    </div>
+
+    <div id="impulsInputArea">
+      <div class="section-label" style="margin-top:0">Wie geht es dir gerade?</div>
+      <div class="mood-chips" id="moodChips">
+        <div class="mood-chip" onclick="selectMood(this)">erschöpft</div>
+        <div class="mood-chip" onclick="selectMood(this)">gestresst</div>
+        <div class="mood-chip" onclick="selectMood(this)">unruhig</div>
+        <div class="mood-chip" onclick="selectMood(this)">leer</div>
+        <div class="mood-chip" onclick="selectMood(this)">überfordert</div>
+        <div class="mood-chip" onclick="selectMood(this)">abgelenkt</div>
+        <div class="mood-chip" onclick="selectMood(this)">traurig</div>
+        <div class="mood-chip" onclick="selectMood(this)">wütend</div>
+        <div class="mood-chip" onclick="selectMood(this)">ängstlich</div>
+        <div class="mood-chip" onclick="selectMood(this)">motiviert</div>
+        <div class="mood-chip" onclick="selectMood(this)">fokussiert</div>
+        <div class="mood-chip" onclick="selectMood(this)">dankbar</div>
+      </div>
+      <div class="impuls-input-wrap">
+        <textarea class="impuls-input" id="impulsText" rows="3"
+          placeholder="Oder beschreib in eigenen Worten — ein Wort reicht auch."></textarea>
+        <button class="impuls-send" id="impulsSendBtn" onclick="triggerImpuls()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="impuls-result" id="impulsResult">
+      <div class="impuls-card">
+        <div class="impuls-card-top">
+          <div class="impuls-diag-label">Diagnose</div>
+          <div class="impuls-diag-text" id="impulsDiag"></div>
+        </div>
+        <div class="impuls-card-action">
+          <div class="impuls-action-tag" id="impulsActionTag">Setup</div>
+          <div class="impuls-action-text" id="impulsActionText"></div>
+        </div>
+        <div class="impuls-card-mech">
+          <div class="impuls-mech-label">Der Mechanismus</div>
+          <div class="impuls-mech-text" id="impulsMech"></div>
+        </div>
+      </div>
+      <button class="btn-impuls-reset" onclick="resetImpuls()" style="margin-top:12px">Neuer Impuls</button>
+    </div>
+  </div>
+
   <!-- ── PROGRESS ── -->
   <div class="view" id="viewProgress">
     <div class="view-header">
@@ -785,6 +966,10 @@ textarea:focus { outline: none; border-color: var(--border-hi); }
     <button class="nav-btn" id="navExplore" onclick="navigate('viewExplore')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       Skills
+    </button>
+    <button class="nav-btn" id="navImpuls" onclick="navigate('viewImpuls')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Impuls
     </button>
     <button class="nav-btn" id="navReflect" onclick="navigate('viewReflect')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -1382,7 +1567,7 @@ function navigate(viewId) {
   state.currentView = viewId;
 
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  const map = {viewHome:'navHome',viewExplore:'navExplore',viewReflect:'navReflect',viewProgress:'navProgress'};
+  const map = {viewHome:'navHome',viewExplore:'navExplore',viewImpuls:'navImpuls',viewReflect:'navReflect',viewProgress:'navProgress'};
   if(map[viewId]) document.getElementById(map[viewId]).classList.add('active');
 
   if(viewId==='viewProgress') renderProgress();
@@ -1390,6 +1575,169 @@ function navigate(viewId) {
   if(viewId==='viewReflect') renderReflect();
 
   window.scrollTo(0,0);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   IMPULS — AI-powered intervention
+   ═══════════════════════════════════════════════════════════════ */
+
+// Fallback knowledge base (used if API unavailable)
+const IMPULS_KB = [
+  { keywords:['erschöpft','müde','kaputt','leer','energie'],
+    diag:'Biologische Basis im Unterschuss. Das System signalisiert Regenerationsbedarf.',
+    tag:'Setup 01: Physiologischer Reset',
+    action:'Stopp. Hinsetzen. Dreimal tief durch die Nase ein, lang durch den Mund aus. Fünf Minuten — nichts anderes.',
+    mech:'Polyvagal-Theorie (Porges): Langes Ausatmen aktiviert den ventralen Vagus direkt. Das Nervensystem schaltet vom Kampf-/Fluchtmodus in Regeneration.' },
+  { keywords:['gestresst','druck','stress','zu viel','überfordert','überwältigt'],
+    diag:'Sympathikus-Überaktivierung. Zu viele offene Schleifen belasten das Arbeitsgedächtnis.',
+    tag:'Setup 04: Kognitive Entlastung',
+    action:'Alle offenen Gedanken auf ein Blatt Papier. Nicht lösen — nur auslagern. Dann eine einzige Sache auswählen. Nur die.',
+    mech:'Zeigarnik-Effekt: Unabgeschlossene Aufgaben bleiben aktiv im Arbeitsgedächtnis. Sie aufzuschreiben signalisiert dem Gehirn: verwaltet.' },
+  { keywords:['unruhig','rastlos','kann nicht','konzentrier','fokus','abgelenkt','zerstreut'],
+    diag:'Kognitive Fragmentierung. Der globale Workspace ist überladen.',
+    tag:'Setup 08: Somatisches Grounding',
+    action:'Füße bewusst auf den Boden drücken. Körper spüren. Dreimal in den Bauch atmen, nicht in die Brust.',
+    mech:'Merleau-Ponty: Du bist dein Körper — kein Pilot darin. Körperwahrnehmung unterbricht den überaktivierten Gedankenfluss sofort.' },
+  { keywords:['traurig','trauer','niedergeschlagen','schlecht','deprimiert','hoffnungslos'],
+    diag:'Emotionale Last ohne Verarbeitung. Gefühle brauchen Benennung, keine Unterdrückung.',
+    tag:'Setup 03: Emotion Labeling',
+    action:'Sag laut (oder schreib): "Ich fühle gerade ___." Nicht bewerten. Nur benennen, was da ist.',
+    mech:'Affect Labeling (Lieberman): Das Benennen eines Gefühls aktiviert den präfrontalen Kortex und reduziert die Amygdala-Reaktivität innerhalb von Sekunden.' },
+  { keywords:['wütend','wut','ärger','frustriert','genervt','aggress'],
+    diag:'Sympathikus-Spike. Energie ohne Kanal.',
+    tag:'Setup 07: Physische Entladung',
+    action:'Jetzt aufstehen. Zwei Minuten intensive Bewegung — Treppen, Kniebeugen, was da ist. Energie braucht einen Ausgang.',
+    mech:'Kampf-/Flucht-Reaktion (Cannon): Der Körper hat sich auf Aktion vorbereitet. Bewegung schließt diesen Kreislauf physiologisch ab.' },
+  { keywords:['ängstlich','angst','sorge','sorgen','panik','nervös','aufgeregt'],
+    diag:'Antizipatorische Bedrohungsreaktion. Das Gehirn konstruiert eine Gefahr, die noch nicht real ist.',
+    tag:'Setup 02: 4-7-8 Atmung',
+    action:'4 Sekunden einatmen. 7 Sekunden halten. 8 Sekunden ausatmen. Vier Runden. Jetzt.',
+    mech:'Parasympathikus-Aktivierung: Das verlängerte Ausatmen stimuliert den Vagusnerv und bremst den Cortisol-Kreislauf direkt.' },
+  { keywords:['motiviert','gut','klar','fokussiert','energie','bereit','stark','dankbar'],
+    diag:'Ventraler Vagus aktiv. Guter Zustand — jetzt nutzen.',
+    tag:'Setup 14: Der erste Sieg',
+    action:'Identifiziere die eine wichtigste Aufgabe des Tages. Starte sie in den nächsten 60 Sekunden — bevor der Impuls verblasst.',
+    mech:'Libet-Experiment: Das Gehirn hat bereits einen Handlungsimpuls generiert. Free Won\'t bedeutet: nicht bremsen, wenn der Impuls konstruktiv ist.' },
+];
+
+let impulsSelectedMood = '';
+
+function selectMood(el) {
+  document.querySelectorAll('.mood-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  impulsSelectedMood = el.textContent.trim();
+  // Also populate the textarea for context
+  const ta = document.getElementById('impulsText');
+  if(!ta.value) ta.value = impulsSelectedMood;
+}
+
+async function triggerImpuls() {
+  const text = document.getElementById('impulsText').value.trim() || impulsSelectedMood;
+  if(!text) { toast('Ein Wort oder Gefühl eingeben'); return; }
+
+  const btn = document.getElementById('impulsSendBtn');
+  btn.disabled = true;
+
+  // Show loading state
+  const result = document.getElementById('impulsResult');
+  result.classList.add('visible');
+  document.getElementById('impulsDiag').innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+  document.getElementById('impulsActionTag').textContent = '';
+  document.getElementById('impulsActionText').textContent = '';
+  document.getElementById('impulsMech').textContent = '';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        system: `Du bist HUMANEED — ein präziser Interventionstool basierend auf Polyvagal-Theorie, Epigenetik und dem Libet-Experiment (Free Won't).
+
+Der Nutzer gibt dir ein Wort, ein Gefühl oder einen kurzen Satz.
+
+Antworte NUR in diesem Format — kein Markdown, keine Leerzeilen zwischen den Feldern:
+
+DIAGNOSE: [1-2 Sätze. Was zeigt dieser Zustand systemisch? Direkt, ohne Floskeln.]
+SETUP: [Name der Intervention, z.B. "Setup 07: Physiologischer Reset"]
+AKTION: [1-2 Sätze. Konkret, sofort umsetzbar. Was genau tun?]
+MECHANISMUS: [1 Satz. Philosophische oder neurowissenschaftliche Begründung. Einen Denker oder eine Theorie nennen.]
+
+Kein "Ich", keine Weichzeichner, keine Fragen. Kurz. Präzise. Klar.`,
+        messages: [{ role: 'user', content: `Zustand: "${text}"` }]
+      })
+    });
+
+    const data = await response.json();
+    const raw = data.content?.map(c=>c.text||'').join('').trim();
+    if(raw) {
+      parseAndRenderImpuls(raw);
+    } else {
+      renderFallback(text);
+    }
+  } catch(e) {
+    renderFallback(text);
+  }
+
+  btn.disabled = false;
+}
+
+function parseAndRenderImpuls(raw) {
+  const lines = raw.split('\n').filter(l=>l.trim());
+  let diag='', setup='', action='', mech='';
+
+  for(const line of lines) {
+    if(line.startsWith('DIAGNOSE:'))   diag   = line.replace('DIAGNOSE:','').trim();
+    else if(line.startsWith('SETUP:')) setup  = line.replace('SETUP:','').trim();
+    else if(line.startsWith('AKTION:'))action = line.replace('AKTION:','').trim();
+    else if(line.startsWith('MECHANISMUS:')) mech = line.replace('MECHANISMUS:','').trim();
+  }
+
+  // Fallback: try to extract from unstructured response
+  if(!diag && raw.length > 20) {
+    const parts = raw.split(/\n\n+/);
+    diag = parts[0] || raw.substring(0,120);
+    action = parts[1] || '';
+    mech = parts[2] || '';
+  }
+
+  animateText('impulsDiag', diag || raw);
+  document.getElementById('impulsActionTag').textContent = setup || 'Impuls';
+  animateText('impulsActionText', action);
+  animateText('impulsMech', mech);
+}
+
+function renderFallback(text) {
+  const lower = text.toLowerCase();
+  const match = IMPULS_KB.find(k=>k.keywords.some(kw=>lower.includes(kw))) || IMPULS_KB[0];
+  animateText('impulsDiag', match.diag);
+  document.getElementById('impulsActionTag').textContent = match.tag;
+  animateText('impulsActionText', match.action);
+  animateText('impulsMech', match.mech);
+}
+
+function animateText(elId, text) {
+  const el = document.getElementById(elId);
+  if(!text) { el.textContent = ''; return; }
+  el.textContent = '';
+  let i = 0;
+  const speed = Math.max(8, Math.min(18, 1200 / text.length));
+  const tick = () => {
+    if(i < text.length) {
+      el.textContent += text[i++];
+      setTimeout(tick, speed);
+    }
+  };
+  tick();
+}
+
+function resetImpuls() {
+  document.getElementById('impulsResult').classList.remove('visible');
+  document.getElementById('impulsText').value = '';
+  impulsSelectedMood = '';
+  document.querySelectorAll('.mood-chip').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('impulsSendBtn').disabled = false;
 }
 
 /* ═══════════════════════════════════════════════════════════════
